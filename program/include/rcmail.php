@@ -813,6 +813,20 @@ class rcmail extends rcube
         $pre = array();
         $task = $p['_task'] ?: ($p['task'] ?: $this->task);
         $pre['_task'] = $task;
+        // PAMELA - account
+        $_account = melanie2::get_account();
+        if (isset($_account)
+            && strpos($_account, '%40') !== false) {
+          $_account = urldecode($_account);
+        }
+        if (isset($_account)
+            && $task != 'login'
+            && $task != 'logout') $p['_account'] = $_account;
+        // PAMELA - courrielleur
+        $_courrielleur = trim(rcube_utils::get_input_value('_courrielleur', rcube_utils::INPUT_GET));
+        if (isset($_courrielleur)) {
+          $p['_courrielleur'] = $_courrielleur;
+        }
         unset($p['task'], $p['_task']);
 
         $url  = $this->filename;
@@ -1528,7 +1542,7 @@ class rcmail extends rcube
         $out = '';
         foreach ($arrFolders as $folder) {
             $title        = null;
-            $folder_class = $this->folder_classname($folder['id']);
+            $folder_class = $this->folder_classname(/* PAMELA */ isset($folder['class']) ? $folder['class'] : $folder['id']);
             $is_collapsed = strpos($collapsed, '&'.rawurlencode($folder['id']).'&') !== false;
             $unread       = $msgcounts ? intval($msgcounts[$folder['id']]['UNSEEN']) : 0;
 
