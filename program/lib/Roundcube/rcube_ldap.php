@@ -789,11 +789,6 @@ class rcube_ldap extends rcube_addressbook
             return $this->result;
         }
 
-        // PAMELA - Problème d'autocomplete - MANTIS 3508: L'autocomplétion LDAP n'est pas efficace
-        if (join(',', (array)$fields) == join(',', $list_fields)) {
-          $fields = array('name');
-        }
-
         // advanced per-attribute search
         if (is_array($value)) {
             // use AND operator for advanced searches
@@ -806,12 +801,6 @@ class rcube_ldap extends rcube_addressbook
                 if (!($mode & rcube_addressbook::SEARCH_PREFIX)) {
                     $wp = '*';
                 }
-            }
-
-            // PAMELA - Recherche dans les numéros de téléphone
-            if (count($fields) == 1 && $fields[0] == 'phone' && isset($value[0]) && strlen($value[0]) >= 4) {
-              // MANTIS 3622: Permettre la recherche LDAP par numéro de téléphone
-              $wp = '*'; $ws = '';
             }
 
             foreach ((array)$fields as $idx => $field) {

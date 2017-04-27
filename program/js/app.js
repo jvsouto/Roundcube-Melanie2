@@ -2543,10 +2543,7 @@ function rcube_webmail()
       url._page = page;
 
     this.http_request('list', url, lock);
-    // PAMELA - Bug skin mobile avec iOS (et pe Chrome Mobile)
-    if (!this.env.ismobile) {
-      this.update_state({ _mbox: mbox, _page: (page && page > 1 ? page : null) });
-    }    
+    this.update_state({ _mbox: mbox, _page: (page && page > 1 ? page : null) });
   };
 
   // removes messages that doesn't exists from list selection array
@@ -5303,15 +5300,8 @@ function rcube_webmail()
     // create results pane if not present
     if (!this.ksearch_pane) {
       ul = $('<ul>');
-      // PAMELA - Problème dans l'autocomplétion sur les resources
-      if (this.is_framed()) {
-        this.ksearch_pane = $('<div>').attr('id', 'rcmKSearchpane').attr('role', 'listbox')
-          .css({ position:'absolute', 'z-index':30000 }).append(ul).appendTo(window.parent.document.body);
-      }
-      else {
-        this.ksearch_pane = $('<div>').attr('id', 'rcmKSearchpane').attr('role', 'listbox')
-          .css({ position:'absolute', 'z-index':30000 }).append(ul).appendTo(document.body);        
-      }
+      this.ksearch_pane = $('<div>').attr('id', 'rcmKSearchpane').attr('role', 'listbox')
+        .css({ position:'absolute', 'z-index':30000 }).append(ul).appendTo(document.body);
       this.ksearch_pane.__ul = ul[0];
     }
 
