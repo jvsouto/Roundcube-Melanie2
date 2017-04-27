@@ -6,6 +6,24 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd
 {
+    public static $files = array (
+        '3a36fb0a6bafb8b516d4768ba4636f67' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/includes/includes_conf.php',
+    );
+
+    public static $prefixLengthsPsr4 = array (
+        'L' => 
+        array (
+            'LibMelanie\\' => 11,
+        ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'LibMelanie\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src',
+        ),
+    );
+
     public static $prefixesPsr0 = array (
         'R' => 
         array (
@@ -79,6 +97,7 @@ class ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd
         'Console_CommandLine_Renderer_Default' => __DIR__ . '/..' . '/pear-pear.php.net/Console_CommandLine/Console/CommandLine/Renderer/Default.php',
         'Console_CommandLine_Result' => __DIR__ . '/..' . '/pear-pear.php.net/Console_CommandLine/Console/CommandLine/Result.php',
         'Console_CommandLine_XmlParser' => __DIR__ . '/..' . '/pear-pear.php.net/Console_CommandLine/Console/CommandLine/XmlParser.php',
+        'Console_Getopt' => __DIR__ . '/..' . '/pear/console_getopt/Console/Getopt.php',
         'Crypt_GPG' => __DIR__ . '/..' . '/pear-pear.php.net/Crypt_GPG/Crypt/GPG.php',
         'Crypt_GPGAbstract' => __DIR__ . '/..' . '/pear-pear.php.net/Crypt_GPG/Crypt/GPGAbstract.php',
         'Crypt_GPG_BadPassphraseException' => __DIR__ . '/..' . '/pear-pear.php.net/Crypt_GPG/Crypt/GPG/Exceptions.php',
@@ -105,33 +124,102 @@ class ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd
         'Crypt_GPG_SubKey' => __DIR__ . '/..' . '/pear-pear.php.net/Crypt_GPG/Crypt/GPG/SubKey.php',
         'Crypt_GPG_UserId' => __DIR__ . '/..' . '/pear-pear.php.net/Crypt_GPG/Crypt/GPG/UserId.php',
         'Crypt_GPG_VerifyStatusHandler' => __DIR__ . '/..' . '/pear-pear.php.net/Crypt_GPG/Crypt/GPG/VerifyStatusHandler.php',
+        'LibMelanie\\Api\\Melanie2\\Addressbook' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/Addressbook.php',
+        'LibMelanie\\Api\\Melanie2\\Attachment' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/Attachment.php',
+        'LibMelanie\\Api\\Melanie2\\Attendee' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/Attendee.php',
+        'LibMelanie\\Api\\Melanie2\\Calendar' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/Calendar.php',
+        'LibMelanie\\Api\\Melanie2\\CalendarSync' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/CalendarSync.php',
+        'LibMelanie\\Api\\Melanie2\\Contact' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/Contact.php',
+        'LibMelanie\\Api\\Melanie2\\Event' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/Event.php',
+        'LibMelanie\\Api\\Melanie2\\EventProperty' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/EventProperty.php',
+        'LibMelanie\\Api\\Melanie2\\Exception' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/Exception.php',
+        'LibMelanie\\Api\\Melanie2\\Organizer' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/Organizer.php',
+        'LibMelanie\\Api\\Melanie2\\Recurrence' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/Recurrence.php',
+        'LibMelanie\\Api\\Melanie2\\Share' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/Share.php',
+        'LibMelanie\\Api\\Melanie2\\Task' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/Task.php',
+        'LibMelanie\\Api\\Melanie2\\TaskProperty' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/TaskProperty.php',
+        'LibMelanie\\Api\\Melanie2\\Taskslist' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/Taskslist.php',
+        'LibMelanie\\Api\\Melanie2\\TaskslistSync' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/TaskslistSync.php',
+        'LibMelanie\\Api\\Melanie2\\User' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/User.php',
+        'LibMelanie\\Api\\Melanie2\\UserPrefs' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Api/Melanie2/UserPrefs.php',
+        'LibMelanie\\Cache\\Cache' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Cache/Cache.php',
+        'LibMelanie\\Config\\MappingMelanie' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Config/MappingMelanie.php',
+        'LibMelanie\\Exceptions\\Melanie2DatabaseException' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Exceptions/Melanie2DatabaseException.php',
+        'LibMelanie\\Exceptions\\Melanie2Exception' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Exceptions/Melanie2Exception.php',
+        'LibMelanie\\Exceptions\\ObjectMelanieUndefinedException' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Exceptions/ObjectMelanieUndefinedException.php',
+        'LibMelanie\\Exceptions\\PropertyDoesNotExistException' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Exceptions/PropertyDoesNotExistException.php',
+        'LibMelanie\\Exceptions\\UndefinedMappingException' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Exceptions/UndefinedMappingException.php',
+        'LibMelanie\\Exceptions\\UndefinedPrimaryKeyException' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Exceptions/UndefinedPrimaryKeyException.php',
+        'LibMelanie\\Interfaces\\IObjectMelanie' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Interfaces/IObjectMelanie.php',
+        'LibMelanie\\Ldap\\LDAPMelanie' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Ldap/LDAPMelanie.php',
+        'LibMelanie\\Ldap\\Ldap' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Ldap/Ldap.php',
+        'LibMelanie\\Lib\\ContactToVCard' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Lib/ContactToVCard.php',
+        'LibMelanie\\Lib\\EventToICS' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Lib/EventToICS.php',
+        'LibMelanie\\Lib\\ICS' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Lib/ICS.php',
+        'LibMelanie\\Lib\\ICSToEvent' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Lib/ICSToEvent.php',
+        'LibMelanie\\Lib\\ICSToTask' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Lib/ICSToTask.php',
+        'LibMelanie\\Lib\\MagicObject' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Lib/MagicObject.php',
+        'LibMelanie\\Lib\\Melanie2Object' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Lib/Melanie2Object.php',
+        'LibMelanie\\Lib\\Selaforme' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Lib/Selaforme.php',
+        'LibMelanie\\Lib\\TaskToICS' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Lib/TaskToICS.php',
+        'LibMelanie\\Lib\\VCard' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Lib/VCard.php',
+        'LibMelanie\\Lib\\VCardToContact' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Lib/VCardToContact.php',
+        'LibMelanie\\Log\\Log' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Log/Log.php',
+        'LibMelanie\\Log\\M2Log' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Log/M2Log.php',
+        'LibMelanie\\Objects\\AddressbookMelanie' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Objects/AddressbookMelanie.php',
+        'LibMelanie\\Objects\\AttachmentMelanie' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Objects/AttachmentMelanie.php',
+        'LibMelanie\\Objects\\CalendarMelanie' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Objects/CalendarMelanie.php',
+        'LibMelanie\\Objects\\EventMelanie' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Objects/EventMelanie.php',
+        'LibMelanie\\Objects\\HistoryMelanie' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Objects/HistoryMelanie.php',
+        'LibMelanie\\Objects\\ObjectMelanie' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Objects/ObjectMelanie.php',
+        'LibMelanie\\Objects\\TaskslistMelanie' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Objects/TaskslistMelanie.php',
+        'LibMelanie\\Objects\\UserMelanie' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Objects/UserMelanie.php',
+        'LibMelanie\\Sql\\DBMelanie' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Sql/DBMelanie.php',
+        'LibMelanie\\Sql\\Sql' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Sql/Sql.php',
+        'LibMelanie\\Sql\\SqlAttachmentRequests' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Sql/SqlAttachmentRequests.php',
+        'LibMelanie\\Sql\\SqlCalendarRequests' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Sql/SqlCalendarRequests.php',
+        'LibMelanie\\Sql\\SqlContactRequests' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Sql/SqlContactRequests.php',
+        'LibMelanie\\Sql\\SqlHistoryRequests' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Sql/SqlHistoryRequests.php',
+        'LibMelanie\\Sql\\SqlMelanieRequests' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Sql/SqlMelanieRequests.php',
+        'LibMelanie\\Sql\\SqlObjectPropertyRequests' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Sql/SqlObjectPropertyRequests.php',
+        'LibMelanie\\Sql\\SqlObjectRequests' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Sql/SqlObjectRequests.php',
+        'LibMelanie\\Sql\\SqlTaskRequests' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src/Sql/SqlTaskRequests.php',
         'Mail_mime' => __DIR__ . '/..' . '/pear-pear.php.net/Mail_Mime/Mail/mime.php',
         'Mail_mimePart' => __DIR__ . '/..' . '/pear-pear.php.net/Mail_Mime/Mail/mimePart.php',
         'Net_IDNA2' => __DIR__ . '/..' . '/pear-pear.php.net/Net_IDNA2/Net/IDNA2.php',
         'Net_IDNA2_Exception' => __DIR__ . '/..' . '/pear-pear.php.net/Net_IDNA2/Net/IDNA2/Exception.php',
         'Net_IDNA2_Exception_Nameprep' => __DIR__ . '/..' . '/pear-pear.php.net/Net_IDNA2/Net/IDNA2/Exception/Nameprep.php',
-        'Net_LDAP2' => __DIR__ . '/..' . '/pear-pear.php.net/Net_LDAP2/Net/LDAP2.php',
-        'Net_LDAP2_Entry' => __DIR__ . '/..' . '/pear-pear.php.net/Net_LDAP2/Net/LDAP2/Entry.php',
-        'Net_LDAP2_Error' => __DIR__ . '/..' . '/pear-pear.php.net/Net_LDAP2/Net/LDAP2.php',
-        'Net_LDAP2_Filter' => __DIR__ . '/..' . '/pear-pear.php.net/Net_LDAP2/Net/LDAP2/Filter.php',
-        'Net_LDAP2_LDIF' => __DIR__ . '/..' . '/pear-pear.php.net/Net_LDAP2/Net/LDAP2/LDIF.php',
-        'Net_LDAP2_RootDSE' => __DIR__ . '/..' . '/pear-pear.php.net/Net_LDAP2/Net/LDAP2/RootDSE.php',
-        'Net_LDAP2_Schema' => __DIR__ . '/..' . '/pear-pear.php.net/Net_LDAP2/Net/LDAP2/Schema.php',
-        'Net_LDAP2_SchemaCache' => __DIR__ . '/..' . '/pear-pear.php.net/Net_LDAP2/Net/LDAP2/SchemaCache.interface.php',
-        'Net_LDAP2_Search' => __DIR__ . '/..' . '/pear-pear.php.net/Net_LDAP2/Net/LDAP2/Search.php',
-        'Net_LDAP2_SimpleFileSchemaCache' => __DIR__ . '/..' . '/pear-pear.php.net/Net_LDAP2/Net/LDAP2/SimpleFileSchemaCache.php',
-        'Net_LDAP2_Util' => __DIR__ . '/..' . '/pear-pear.php.net/Net_LDAP2/Net/LDAP2/Util.php',
+        'Net_LDAP2' => __DIR__ . '/..' . '/pear/net_ldap2/Net/LDAP2.php',
+        'Net_LDAP2_Entry' => __DIR__ . '/..' . '/pear/net_ldap2/Net/LDAP2/Entry.php',
+        'Net_LDAP2_Error' => __DIR__ . '/..' . '/pear/net_ldap2/Net/LDAP2.php',
+        'Net_LDAP2_Filter' => __DIR__ . '/..' . '/pear/net_ldap2/Net/LDAP2/Filter.php',
+        'Net_LDAP2_LDIF' => __DIR__ . '/..' . '/pear/net_ldap2/Net/LDAP2/LDIF.php',
+        'Net_LDAP2_RootDSE' => __DIR__ . '/..' . '/pear/net_ldap2/Net/LDAP2/RootDSE.php',
+        'Net_LDAP2_Schema' => __DIR__ . '/..' . '/pear/net_ldap2/Net/LDAP2/Schema.php',
+        'Net_LDAP2_SchemaCache' => __DIR__ . '/..' . '/pear/net_ldap2/Net/LDAP2/SchemaCache.interface.php',
+        'Net_LDAP2_Search' => __DIR__ . '/..' . '/pear/net_ldap2/Net/LDAP2/Search.php',
+        'Net_LDAP2_SimpleFileSchemaCache' => __DIR__ . '/..' . '/pear/net_ldap2/Net/LDAP2/SimpleFileSchemaCache.php',
+        'Net_LDAP2_Util' => __DIR__ . '/..' . '/pear/net_ldap2/Net/LDAP2/Util.php',
         'Net_LDAP3' => __DIR__ . '/..' . '/kolab/net_ldap3/lib/Net/LDAP3.php',
         'Net_LDAP3_Result' => __DIR__ . '/..' . '/kolab/net_ldap3/lib/Net/LDAP3/Result.php',
         'Net_SMTP' => __DIR__ . '/..' . '/pear-pear.php.net/Net_SMTP/Net/SMTP.php',
         'Net_Sieve' => __DIR__ . '/..' . '/roundcube/net_sieve/Sieve.php',
-        'Net_Socket' => __DIR__ . '/..' . '/pear-pear.php.net/Net_Socket/Net/Socket.php',
+        'Net_Socket' => __DIR__ . '/..' . '/pear/net_socket/Net/Socket.php',
+        'OS_Guess' => __DIR__ . '/..' . '/pear/pear-core-minimal/src/OS/Guess.php',
+        'PEAR' => __DIR__ . '/..' . '/pear/pear-core-minimal/src/PEAR.php',
+        'PEAR_Error' => __DIR__ . '/..' . '/pear/pear-core-minimal/src/PEAR.php',
+        'PEAR_ErrorStack' => __DIR__ . '/..' . '/pear/pear-core-minimal/src/PEAR/ErrorStack.php',
+        'PEAR_Exception' => __DIR__ . '/..' . '/pear/pear_exception/PEAR/Exception.php',
+        'Roundcube\\Composer\\PluginInstaller' => __DIR__ . '/..' . '/roundcube/plugin-installer/src/Roundcube/Composer/PluginInstaller.php',
         'SieveTest' => __DIR__ . '/..' . '/roundcube/net_sieve/tests/SieveTest.php',
+        'System' => __DIR__ . '/..' . '/pear/pear-core-minimal/src/System.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
+            $loader->prefixLengthsPsr4 = ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd::$prefixDirsPsr4;
             $loader->prefixesPsr0 = ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd::$prefixesPsr0;
             $loader->fallbackDirsPsr0 = ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd::$fallbackDirsPsr0;
             $loader->classMap = ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd::$classMap;

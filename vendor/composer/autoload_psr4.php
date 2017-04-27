@@ -6,4 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'LibMelanie\\' => array($vendorDir . '/messagerie-melanie2/ORM-M2/src'),
 );

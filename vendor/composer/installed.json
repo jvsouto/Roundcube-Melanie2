@@ -144,38 +144,6 @@
         "description": "Mail_Mime provides classes to deal with the creation and manipulation of MIME messages.\nIt allows people to create e-mail messages consisting of:\n* Text Parts\n* HTML Parts\n* Inline HTML Images\n* Attachments\n* Attached messages\n\nIt supports big messages, base64 and quoted-printable encodings and\nnon-ASCII characters in filenames, subjects, recipients, etc. encoded\nusing RFC2047 and/or RFC2231."
     },
     {
-        "name": "pear-pear.php.net/Net_LDAP2",
-        "version": "2.2.0",
-        "version_normalized": "2.2.0.0",
-        "dist": {
-            "type": "file",
-            "url": "https://pear.php.net/get/Net_LDAP2-2.2.0.tgz",
-            "reference": null,
-            "shasum": null
-        },
-        "require": {
-            "ext-ldap": "*",
-            "php": ">=5.4.0.0"
-        },
-        "replace": {
-            "pear-pear/net_ldap2": "== 2.2.0.0"
-        },
-        "type": "pear-library",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                ""
-            ]
-        },
-        "include-path": [
-            "/"
-        ],
-        "license": [
-            "LGPLv3 License"
-        ],
-        "description": "Net_LDAP2 is the successor of Net_LDAP which is a clone of Perls Net::LDAP\n                object interface to directory servers. It does contain most of Net::LDAPs\n                features but has some own too.\n                 With Net_LDAP2 you have:\n                 * A simple object-oriented interface to connections, searches entries and filters.\n                 * Support for TLS and LDAP v3.\n                 * Simple modification, deletion and creation of LDAP entries.\n                 * Support for schema handling.\n\n                 Net_LDAP2 layers itself on top of PHP's existing ldap extensions."
-    },
-    {
         "name": "pear-pear.php.net/Net_Socket",
         "version": "1.0.14",
         "version_normalized": "1.0.14.0",
@@ -457,47 +425,6 @@
         "description": "Minimal set of PEAR core files to be used as composer dependency"
     },
     {
-        "name": "pear/net_ldap2",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/pear/Net_LDAP2.git",
-            "reference": "38f1b22a96dfbd7ec53852f0e1e7ec1a9a5eb0e8"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/pear/Net_LDAP2/zipball/38f1b22a96dfbd7ec53852f0e1e7ec1a9a5eb0e8",
-            "reference": "38f1b22a96dfbd7ec53852f0e1e7ec1a9a5eb0e8",
-            "shasum": ""
-        },
-        "require": {
-            "ext-ldap": "*",
-            "pear/pear-core-minimal": "^1.10.1"
-        },
-        "time": "2015-10-30T20:34:22+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "Net/"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "include-path": [
-            "."
-        ],
-        "license": [
-            "LGPL-3.0"
-        ],
-        "description": "Object oriented interface for searching and manipulating LDAP-entries",
-        "homepage": "http://pear.php.net/package/Net_LDAP2",
-        "keywords": [
-            "PEAR",
-            "ldap"
-        ]
-    },
-    {
         "name": "kolab/net_ldap3",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
@@ -545,61 +472,6 @@
             "pear",
             "vlv"
         ]
-    },
-    {
-        "name": "pear/net_socket",
-        "version": "dev-trunk",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/pear/Net_Socket.git",
-            "reference": "bbe6a12bb4f7059dba161f6ddd43f369c0ec8d09"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/pear/Net_Socket/zipball/bbe6a12bb4f7059dba161f6ddd43f369c0ec8d09",
-            "reference": "bbe6a12bb4f7059dba161f6ddd43f369c0ec8d09",
-            "shasum": ""
-        },
-        "require": {
-            "pear/pear_exception": "*"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "*"
-        },
-        "time": "2015-03-22T15:48:19+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "Net": "./"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "include-path": [
-            "./"
-        ],
-        "license": [
-            "PHP License"
-        ],
-        "authors": [
-            {
-                "name": "Chuck Hagenbuch",
-                "email": "chuck@horde.org",
-                "role": "Lead"
-            },
-            {
-                "name": "Aleksander Machniak",
-                "email": "alec@php.net",
-                "role": "Lead"
-            },
-            {
-                "name": "Stig Bakken",
-                "email": "stig@php.net",
-                "role": "Lead"
-            }
-        ],
-        "description": "More info available on: http://pear.php.net/package/Net_Socket"
     },
     {
         "name": "roundcube/net_sieve",
@@ -664,5 +536,160 @@
             "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Net_Sieve",
             "source": "https://github.com/roundcube/Net_Sieve"
         }
+    },
+    {
+        "name": "messagerie-melanie2/ORM-M2",
+        "version": "0.3.0.7",
+        "version_normalized": "0.3.0.7",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/messagerie-melanie2/ORM-M2.git",
+            "reference": "ef4b5dc9add2a1cda5b282c3154b4b1f11bd194c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/messagerie-melanie2/ORM-M2/zipball/ef4b5dc9add2a1cda5b282c3154b4b1f11bd194c",
+            "reference": "ef4b5dc9add2a1cda5b282c3154b4b1f11bd194c",
+            "shasum": ""
+        },
+        "require": {
+            "ext-ldap": "*",
+            "ext-pgsql": "*",
+            "php": ">=5.3.1"
+        },
+        "require-dev": {
+            "composer/composer": "*"
+        },
+        "time": "2017-04-21T13:56:29+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "includes/includes_conf.php"
+            ],
+            "psr-4": {
+                "LibMelanie\\": "src/"
+            }
+        },
+        "license": [
+            "GPLv3"
+        ],
+        "authors": [
+            {
+                "name": "Thomas Payen",
+                "email": "thomas.payen@i-carre.net",
+                "homepage": "https://github.com/tpayen",
+                "role": "Developer"
+            }
+        ],
+        "description": "ORM pour l'accès aux données Mélanie2",
+        "homepage": "https://github.com/messagerie-melanie2/ORM-M2",
+        "keywords": [
+            "Addressbook",
+            "Calendar",
+            "ORM",
+            "Tasks"
+        ],
+        "support": {
+            "source": "https://github.com/messagerie-melanie2/ORM-M2/tree/0.3.0.7",
+            "issues": "https://github.com/messagerie-melanie2/ORM-M2/issues"
+        }
+    },
+    {
+        "name": "pear/net_ldap2",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/pear/Net_LDAP2.git",
+            "reference": "38f1b22a96dfbd7ec53852f0e1e7ec1a9a5eb0e8"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/pear/Net_LDAP2/zipball/38f1b22a96dfbd7ec53852f0e1e7ec1a9a5eb0e8",
+            "reference": "38f1b22a96dfbd7ec53852f0e1e7ec1a9a5eb0e8",
+            "shasum": ""
+        },
+        "require": {
+            "ext-ldap": "*",
+            "pear/pear-core-minimal": "^1.10.1"
+        },
+        "time": "2015-10-30T20:34:22+00:00",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "classmap": [
+                "Net/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "include-path": [
+            "."
+        ],
+        "license": [
+            "LGPL-3.0"
+        ],
+        "description": "Object oriented interface for searching and manipulating LDAP-entries",
+        "homepage": "http://pear.php.net/package/Net_LDAP2",
+        "keywords": [
+            "PEAR",
+            "ldap"
+        ]
+    },
+    {
+        "name": "pear/net_socket",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/pear/Net_Socket.git",
+            "reference": "7482c62deab2c2685e00c221d97a83e17c795ef8"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/pear/Net_Socket/zipball/7482c62deab2c2685e00c221d97a83e17c795ef8",
+            "reference": "7482c62deab2c2685e00c221d97a83e17c795ef8",
+            "shasum": ""
+        },
+        "require": {
+            "pear/pear_exception": "@stable",
+            "php": ">=5.4.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^4"
+        },
+        "time": "2017-04-13T17:16:44+00:00",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-0": {
+                "Net": "./"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "include-path": [
+            "./"
+        ],
+        "license": [
+            "BSD-2-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Chuck Hagenbuch",
+                "email": "chuck@horde.org",
+                "role": "Lead"
+            },
+            {
+                "name": "Aleksander Machniak",
+                "email": "alec@php.net",
+                "role": "Lead"
+            },
+            {
+                "name": "Stig Bakken",
+                "email": "stig@php.net",
+                "role": "Lead"
+            }
+        ],
+        "description": "More info available on: http://pear.php.net/package/Net_Socket"
     }
 ]
