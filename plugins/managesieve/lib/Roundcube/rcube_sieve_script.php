@@ -1231,11 +1231,16 @@ class rcube_sieve_script
                             $text    .= substr($str, $position, $pos - $position);
                             $position = $pos + 2;
 
-                            if ($str[$pos] == "\n"
-                                || ($str[$pos] == "\r" && $str[$pos + 1] == "\n")
-                            ) {
+                            if ($str[$position] == "\n") {
                                 break;
                             }
+
+                            if ($str[$position] == "\r" && $str[$position + 1] == "\n") {
+                                $position++;
+                                break;
+                            }
+
+                            $text .= "\n.";
                         }
 
                         // remove dot-stuffing

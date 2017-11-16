@@ -669,8 +669,9 @@ class rcmail extends rcube
             $_SESSION['password']     = $this->encrypt($password);
             $_SESSION['login_time']   = time();
 
-            if (isset($_REQUEST['_timezone']) && $_REQUEST['_timezone'] != '_default_') {
-                $_SESSION['timezone'] = rcube_utils::get_input_value('_timezone', rcube_utils::INPUT_GPC);
+            $timezone = rcube_utils::get_input_value('_timezone', rcube_utils::INPUT_GPC);
+            if ($timezone && is_string($timezone) && $timezone != '_default_') {
+                $_SESSION['timezone'] = $timezone;
             }
 
             // fix some old settings according to namespace prefix
@@ -1688,12 +1689,13 @@ class rcmail extends rcube
      * Try to localize the given IMAP folder name.
      * UTF-7 decode it in case no localized text was found
      *
-     * @param string $name      Folder name
-     * @param bool   $with_path Enable path localization
+     * @param string $name        Folder name
+     * @param bool   $with_path   Enable path localization
+     * @param bool   $path_remove Remove the path
      *
      * @return string Localized folder name in UTF-8 encoding
      */
-    public function localize_foldername($name, $with_path = false)
+    public function localize_foldername($name, $with_path = false, $path_remove = false)
     {
         $realnames = $this->config->get('show_real_foldernames');
 
@@ -1701,12 +1703,20 @@ class rcmail extends rcube
             return $this->gettext($folder_class);
         }
 
+        $storage   = $this->get_storage();
+        $delimiter = $storage->get_hierarchy_delimiter();
+
+        // Remove the path
+        if ($path_remove) {
+            if (strpos($name, $delimiter)) {
+                $path = explode($delimiter, $name);
+                $name = array_pop($path);
+            }
+        }
         // try to localize path of the folder
-        if ($with_path && !$realnames) {
-            $storage   = $this->get_storage();
-            $delimiter = $storage->get_hierarchy_delimiter();
-            $path      = explode($delimiter, $name);
-            $count     = count($path);
+        else if ($with_path && !$realnames) {
+            $path  = explode($delimiter, $name);
+            $count = count($path);
 
             if ($count > 1) {
                 for ($i = 1; $i < $count; $i++) {

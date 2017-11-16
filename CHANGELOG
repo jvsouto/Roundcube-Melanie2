@@ -1,6 +1,36 @@
 CHANGELOG Roundcube Webmail
 ===========================
 
+RELEASE 1.2.7
+-------------
+- Fix rewind(): stream does not support seeking (#5950)
+- Fix bug where HTML messages could have been rendered empty on some systems (#5957)
+- Fix (again) bug where image data URIs in css style were treated as evil/remote in mail preview (#5580)
+- Managesieve: Fix parsing dot-staffed lines in multiline text (#5838, #5959)
+- Fix file disclosure vulnerability caused by insufficient input validation [CVE-2017-16651] (#6026)
+
+RELEASE 1.2.6
+-------------
+- Don't ignore (global) userlogins/sendmail logging in per_user_logging mode
+- Enigma: Fix compatibility with assets_dir
+- Managesieve: Fix AM/PM suffix in vacation time selectors
+- Fix bug where comment notation within style tag would cause the whole style to be ignored (#5747)
+- Fix bug where it wasn't possible to scroll folders list in Edge (#5750)
+- Fix addressbook searching by gender (#5757)
+- Fix SQL syntax error on MariaDB 10.2 (#5774)
+- Fix bug where it wasn't possible to set timezone to auto-detected value (#5782)
+- Fix uninitialized string offset in rcube_utils::bin2ascii() and make sure rcube_utils::random_bytes() result has always requested length (#5788)
+- Fix potential XSS vulnerability with malformed HTML message markup
+
+RELEASE 1.2.5
+-------------
+- Fix re-positioning of the fixed header of messages list in Chrome when using minimal mode toggle and About dialog (#5711)
+- Fix so settings/upload.inc could not be used by plugins (#5694)
+- Fix regression in LDAP fuzzy search where it always used prefix search instead (#5713)
+- Fix bug where namespace prefix could not be truncated on folders list if show_real_foldernames=true (#5695)
+- Fix bug where base_dn setting was ignored inside group_filters (#5720)
+- Password: Fix security issue in virtualmin and sasl drivers [CVE-2017-8114]
+
 RELEASE 1.2.4
 -------------
 - Managesieve: Fix handling of scripts with nested rules (#5540)
@@ -24,7 +54,7 @@ RELEASE 1.2.4
 - Fix update of group name in the contacts list header on group rename (#5648)
 - Add rewrite rule to disable access to /vendor/bin folder in .htaccess (#5630)
 - Fix bug where it was too easy accidentally move a folder when using the subscription checkbox (#5655)
-- Fix XSS issue in handling of a style tag inside of an svg element
+- Fix XSS issue in handling of a style tag inside of an svg element (CVE-2017-6820)
 
 RELEASE 1.2.3
 -------------

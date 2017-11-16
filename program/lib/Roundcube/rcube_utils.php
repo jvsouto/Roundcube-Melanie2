@@ -419,10 +419,17 @@ class rcube_utils
             if ($allow_remote) {
                 $a_styles = preg_split('/;[\r\n]*/', $styles, -1, PREG_SPLIT_NO_EMPTY);
 
-                foreach ($a_styles as $line) {
+                for ($i=0, $len=count($a_styles); $i < $len; $i++) {
+                    $line     = $a_styles[$i];
                     $stripped = preg_replace('/[^a-z\(:;]/i', '', $line);
-                    // ... and only allow strict url() values
-                    if (stripos($stripped, 'url(') && !preg_match($strict_url_regexp, $line)) {
+
+                    // allow data:image uri, join with continuation
+                    if (stripos($stripped, 'url(data:image')) {
+                        $a_styles[$i] .= ';' . $a_styles[$i+1];
+                        unset($a_styles[$i+1]);
+                    }
+                    // allow strict url() values only
+                    else if (stripos($stripped, 'url(') && !preg_match($strict_url_regexp, $line)) {
                         $a_styles = array('/* evil! */');
                         break;
                     }
@@ -499,6 +506,7 @@ class rcube_utils
     public static function xss_entity_decode($content)
     {
         $out = html_entity_decode(html_entity_decode($content));
+        $out = trim(preg_replace('/(^<!--|-->$)/', '', trim($out)));
         $out = preg_replace_callback('/\\\([0-9a-f]{4})/i',
             array(self, 'xss_entity_decode_callback'), $out);
         $out = preg_replace('#/\*.*\*/#Ums', '', $out);
@@ -1160,28 +1168,33 @@ class rcube_utils
      */
     public static function random_bytes($length, $raw = false)
     {
+        $hextab  = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        $tabsize = strlen($hextab);
+
         // Use PHP7 true random generator
-        if (function_exists('random_bytes')) {
-            // random_bytes() can throw an Error/TypeError/Exception in some cases
-            try {
-                $random = random_bytes($length);
+        if ($raw && function_exists('random_bytes')) {
+            return random_bytes($length);
+        }
+
+        if (!$raw && function_exists('random_int')) {
+            $result = '';
+            while ($length-- > 0) {
+                $result .= $hextab[random_int(0, $tabsize - 1)];
             }
-            catch (Throwable $e) {}
+
+            return $result;
         }
 
-        if (!$random) {
-            $random = openssl_random_pseudo_bytes($length);
+        $random = openssl_random_pseudo_bytes($length);
+
+        if ($random === false) {
+            throw new Exception("Failed to get random bytes");
         }
 
-        if ($raw) {
-            return $random;
-        }
-
-        $random = self::bin2ascii($random);
-
-        // truncate to the specified size...
-        if ($length < strlen($random)) {
-            $random = substr($random, 0, $length);
+        if (!$raw) {
+            for ($x = 0; $x < $length; $x++) {
+                $random[$x] = $hextab[ord($random[$x]) % $tabsize];
+            }
         }
 
         return $random;
@@ -1192,40 +1205,16 @@ class rcube_utils
      *
      * @param string $input Binary input
      *
-     * @return string Readable output
+     * @return string Readable output (Base62)
+     * @deprecated since 1.3.1
      */
     public static function bin2ascii($input)
     {
-        // Above method returns "hexits".
-        // Based on bin_to_readable() function in ext/session/session.c.
-        // Note: removed ",-" characters from hextab
         $hextab = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        $nbits  = 6; // can be 4, 5 or 6
-        $length = strlen($input);
         $result = '';
-        $char   = 0;
-        $i      = 0;
-        $have   = 0;
-        $mask   = (1 << $nbits) - 1;
 
-        while (true) {
-            if ($have < $nbits) {
-                if ($i < $length) {
-                    $char |= ord($input[$i++]) << $have;
-                    $have += 8;
-                }
-                else if (!$have) {
-                    break;
-                }
-                else {
-                    $have = $nbits;
-                }
-            }
-
-            // consume nbits
-            $result .= $hextab[$char & $mask];
-            $char  >>= $nbits;
-            $have   -= $nbits;
+        for ($x = 0; $x < strlen($input); $x++) {
+            $result .= $hextab[ord($input[$x]) % 62];
         }
 
         return $result;

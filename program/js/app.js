@@ -5111,7 +5111,8 @@ function rcube_webmail()
           return;
 
         var dir = key == 38 ? 1 : 0,
-          highlight = document.getElementById('rcmkSearchItem' + this.ksearch_selected);
+          // PAMELA - MANTIS 0004570: partage de l'agenda, sélection de l'agent impossible avec les flèches du clavier
+          highlight = document.getElementById('rcmKSearchpane') ? document.getElementById('rcmkSearchItem' + this.ksearch_selected) : parent.document.getElementById('rcmkSearchItem' + this.ksearch_selected);
 
         if (!highlight)
           highlight = this.ksearch_pane.__ul.firstChild;
