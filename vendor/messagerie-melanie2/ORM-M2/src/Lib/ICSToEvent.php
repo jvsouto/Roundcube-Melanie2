@@ -21,13 +21,15 @@ namespace LibMelanie\Lib;
 use LibMelanie\Config\ConfigMelanie;
 use LibMelanie\Api\Melanie2\Exception;
 use LibMelanie\Api\Melanie2\Event;
-use LibMelanie\Log\M2Log;
 use LibMelanie\Api\Melanie2\User;
 use LibMelanie\Api\Melanie2\Calendar;
+use LibMelanie\Api\Melanie2\UserPrefs;
+use LibMelanie\Log\M2Log;
 
 // Utilisation de la librairie Sabre VObject pour la conversion ICS
-require_once 'vendor/autoload.php';
+@include_once 'vendor/autoload.php';
 use Sabre\VObject;
+
 
 /**
  * Class de génération de l'évènement en fonction de l'ICS
@@ -87,7 +89,9 @@ class ICSToEvent {
   public static function Convert($ics, Event $event, Calendar $calendar = null, User $user = null) {
     $vcalendar = VObject\Reader::read($ics);
     // Gestion du timezone
-    if (isset($calendar)) {
+    if (isset($user)) {
+      $timezone = $user->getTimezone();
+    } else if (isset($calendar)) {
       $timezone = $calendar->getTimezone();
     } else {
       $timezone = ConfigMelanie::CALENDAR_DEFAULT_TIMEZONE;
@@ -96,7 +100,7 @@ class ICSToEvent {
     foreach ($vcalendar->VEVENT as $vevent) {
       $recurrence_id = $vevent->{ICS::RECURRENCE_ID};
       if (isset($recurrence_id)) {
-        $object = new Exception($event);
+        $object = new Exception($event, $user, $calendar);
       } else {
         $object = $event;
       }
@@ -106,17 +110,93 @@ class ICSToEvent {
       else
         $object->uid = $vevent->UID;
       // Owner
-      if (isset($recurrence_id) && empty($object->owner)) {
-        $object->owner = isset($user) && isset($user->uid) ? $user->uid : $event->owner;
+      if (isset($recurrence_id) && (!isset($object->owner) || empty($object->owner))) {
+        M2Log::Log(M2Log::LEVEL_DEBUG, "ICSToEvent::Convert() SetOwner = " . isset($user) && isset($user->uid) ? $user->uid : $calendar->owner);
+        $object->owner = isset($user) && isset($user->uid) ? $user->uid : $calendar->owner;
       }
+      // DTSTART & DTEND
+      if (isset($vevent->DTSTART) && isset($vevent->DTEND)) {
+        $startDate = $vevent->DTSTART->getDateTime();
+        $endDate = $vevent->DTEND->getDateTime();
+      }
+      else if (isset($vevent->DTSTART) && isset($vevent->DURATION)) {
+        $startDate = $vevent->DTSTART->getDateTime();
+        $endDate = clone $startDate;
+        $duration = new \DateInterval(strval($vevent->DURATION));
+        $endDate->add($duration);
+      }
+      if (isset($startDate)) {
+        $allDay = isset($vevent->DTSTART->parameters[ICS::VALUE]) && $vevent->DTSTART->parameters[ICS::VALUE] == ICS::VALUE_DATE;
+        // MANTIS 0004694: Forcer le Timezone quand il est différent de celui enregistré
+        if ($startDate->getTimezone()->getName() != 'UTC' && !$allDay && $startDate->getTimezone()->getName() != $timezone && isset($user)) {
+          $userPref = new UserPrefs($user);
+          $userPref->name = ConfigMelanie::TZ_PREF_NAME;
+          $userPref->scope = ConfigMelanie::PREF_SCOPE;
+          $userPref->value = $startDate->getTimezone()->getName();
+          $ret = $userPref->save();
+          if (!is_null($ret)) {
+            $timezone = $startDate->getTimezone()->getName();
+          }
+        }
+        // Gestion du Timezone GMT
+        if ($startDate->getTimezone()->getName() == 'UTC' && !$allDay) {
+          $startDate->setTimezone(new \DateTimeZone($timezone));
+        }
+        if ($endDate->getTimezone()->getName() == 'UTC' && !$allDay) {
+          $endDate->setTimezone(new \DateTimeZone($timezone));
+        }
+        $object->start = $startDate->format(self::DB_DATE_FORMAT);
+        $object->end = $endDate->format(self::DB_DATE_FORMAT);
+      }      
+      
       // Recurrence ID
       if (isset($recurrence_id)) {
         $date = $recurrence_id->getDateTime();
-        $date->setTimezone(new \DateTimeZone($timezone));
+        if ($date->getTimezone()->getName() == 'UTC') {
+          $date->setTimezone(new \DateTimeZone($timezone));
+        }        
         $object->recurrenceId = $date->format(self::SHORT_DB_DATE_FORMAT);
+        $object->setAttribute(ICS::RECURRENCE_ID, $date->format(self::DB_DATE_FORMAT));
       }
       // Cas du FAKED MASTER
       if (isset($vevent->{ICS::X_MOZ_FAKED_MASTER}) && intval($vevent->{ICS::X_MOZ_FAKED_MASTER}->getValue()) == 1) {
+        // X MOZ LASTACK
+        if (isset($vevent->{ICS::X_MOZ_LASTACK})) {
+          $object->setAttribute(ICS::X_MOZ_LASTACK, $vevent->{ICS::X_MOZ_LASTACK}->getValue());
+        } else {
+          $object->deleteAttribute(ICS::X_MOZ_LASTACK);
+        }
+        // X MOZ SNOOZE TIME
+        if (isset($vevent->{ICS::X_MOZ_SNOOZE_TIME})) {
+          $object->setAttribute(ICS::X_MOZ_SNOOZE_TIME, $vevent->{ICS::X_MOZ_SNOOZE_TIME}->getValue());
+        } else {
+          $object->deleteAttribute(ICS::X_MOZ_SNOOZE_TIME);
+        }
+        // X MOZ GENERATION
+        if (isset($vevent->{ICS::X_MOZ_GENERATION})) {
+          $object->setAttribute(ICS::X_MOZ_GENERATION, $vevent->{ICS::X_MOZ_GENERATION}->getValue());
+        } else {
+          $object->deleteAttribute(ICS::X_MOZ_GENERATION);
+        }
+        // DTSTAMP
+        if (isset($vevent->{ICS::DTSTAMP})) {
+          $object->setAttribute(ICS::DTSTAMP, $vevent->{ICS::DTSTAMP}->getValue());
+        } else {
+          $object->deleteAttribute(ICS::DTSTAMP);
+        }
+        // LAST-MODIFIED
+        if (isset($vevent->{ICS::LAST_MODIFIED})) {
+          $object->setAttribute(ICS::LAST_MODIFIED, $vevent->{ICS::LAST_MODIFIED}->getValue());
+        } else {
+          $object->deleteAttribute(ICS::LAST_MODIFIED);
+        }
+        // CREATED
+        if (isset($vevent->{ICS::CREATED})) {
+          $object->setAttribute(ICS::CREATED, $vevent->{ICS::CREATED}->getValue());
+        } else {
+          $object->deleteAttribute(ICS::CREATED);
+        }
+        
         $object->deleted = true;
         continue;
       }
@@ -157,32 +237,46 @@ class ICSToEvent {
       // VALARM
       if (isset($vevent->VALARM)) {
         $alarmDate = $vevent->VALARM->getEffectiveTriggerTime();
-        if (isset($vevent->DTSTART)) {
-          $startDate = $vevent->DTSTART->getDateTime();
+        if (isset($startDate)) {
           $object->alarm = ($startDate->format("U") - $alarmDate->format("U")) / 60;
           if ($object->alarm === 0) {
             $object->alarm = 1;
           }
         }
-        // X MOZ LASTACK
-        if (isset($vevent->{ICS::X_MOZ_LASTACK})) {
-          $object->setAttribute(ICS::X_MOZ_LASTACK, $vevent->{ICS::X_MOZ_LASTACK});
-        } else {
-          $object->deleteAttribute(ICS::X_MOZ_LASTACK);
-        }
-        // X MOZ SNOOZE TIME
-        if (isset($vevent->{ICS::X_MOZ_SNOOZE_TIME})) {
-          $object->setAttribute(ICS::X_MOZ_SNOOZE_TIME, $vevent->{ICS::X_MOZ_SNOOZE_TIME});
-        } else {
-          $object->deleteAttribute(ICS::X_MOZ_SNOOZE_TIME);
-        }
-      } else
+        if (!isset($recurrence_id)) {
+          // X MOZ LASTACK
+          if (isset($vevent->{ICS::X_MOZ_LASTACK})) {
+            $object->setAttribute(ICS::X_MOZ_LASTACK, $vevent->{ICS::X_MOZ_LASTACK}->getValue());
+          } else {
+            $object->deleteAttribute(ICS::X_MOZ_LASTACK);
+          }
+          // X MOZ SNOOZE TIME
+          if (isset($vevent->{ICS::X_MOZ_SNOOZE_TIME})) {
+            $object->setAttribute(ICS::X_MOZ_SNOOZE_TIME, $vevent->{ICS::X_MOZ_SNOOZE_TIME}->getValue());
+          } else {
+            $object->deleteAttribute(ICS::X_MOZ_SNOOZE_TIME);
+          }
+        }        
+      } else {
         $object->alarm = 0;
+      }        
       // SEQUENCE
       if (isset($vevent->SEQUENCE)) {
         $object->setAttribute(ICS::SEQUENCE, $vevent->SEQUENCE->getValue());
       } else {
         $object->deleteAttribute(ICS::SEQUENCE);
+      }
+      // X-MOZ-RECEIVED-SEQUENCE
+      if (isset($vevent->{ICS::X_MOZ_RECEIVED_SEQUENCE})) {
+        $object->setAttribute(ICS::X_MOZ_RECEIVED_SEQUENCE, $vevent->{ICS::X_MOZ_RECEIVED_SEQUENCE}->getValue());
+      } else {
+        $object->deleteAttribute(ICS::X_MOZ_RECEIVED_SEQUENCE);
+      }
+      // X-MOZ-RECEIVED-DTSTAMP
+      if (isset($vevent->{ICS::X_MOZ_RECEIVED_DTSTAMP})) {
+        $object->setAttribute(ICS::X_MOZ_RECEIVED_DTSTAMP, $vevent->{ICS::X_MOZ_RECEIVED_DTSTAMP}->getValue());
+      } else {
+        $object->deleteAttribute(ICS::X_MOZ_RECEIVED_DTSTAMP);
       }
       // X Moz Send Invitations
       if (isset($vevent->{ICS::X_MOZ_SEND_INVITATIONS})) {
@@ -223,13 +317,7 @@ class ICSToEvent {
         $object->setAttribute(ICS::CREATED, $vevent->CREATED->getValue());
       } else {
         $object->deleteAttribute(ICS::CREATED);
-      }
-      // DTSTART & DTEND
-      if (isset($vevent->DTSTART) && isset($vevent->DTEND)) {
-        $object->start = $vevent->DTSTART->getDateTime()->format(self::DB_DATE_FORMAT);
-        ;
-        $object->end = $vevent->DTEND->getDateTime()->format(self::DB_DATE_FORMAT);
-      }
+      }      
       // CLASS
       if (isset($vevent->CLASS)) {
         switch ($vevent->CLASS->getValue()) {
@@ -354,7 +442,8 @@ class ICSToEvent {
             }
             $_attach->modified = time();
             $_attach->owner = isset($user) ? $user->uid : $object->owner;
-            $_attach->path = $object->uid . '/' . $object->owner;
+            // MANTIS 0004706: L'enregistrement d'une pièce jointe depuis l'ICS ne se fait pas dans le bon dossier vfs
+            $_attach->path = $object->uid . '/' . $object->calendar;
             $_attach->isfolder = false;
             foreach ($attachments as $key => $attachment) {
               if ($attachment->path == $_attach->path && $attachment->name == $_attach->name) {
@@ -434,7 +523,7 @@ class ICSToEvent {
         $object->recurrence->rrule = $vevent->RRULE->getParts();
         if (isset($vevent->EXDATE)) {
           foreach ($vevent->EXDATE as $exdate) {
-            $exception = new \LibMelanie\Api\Melanie2\Exception($event, $user, $calendar);
+            $exception = new Exception($event, $user, $calendar);
             $date = $exdate->getDateTime();
             $date->setTimezone(new \DateTimeZone($timezone));
             $exception->recurrenceId = $date->format(self::SHORT_DB_DATE_FORMAT);

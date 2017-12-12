@@ -240,7 +240,7 @@ class Recurrence extends Melanie2Object {
         }
         // Génération de la date de fin de récurrence
         $recurrence->enddate = $rdata[ICS::UNTIL];
-        $recurenddate = new \DateTime($recurrence->enddate, new \DateTimeZone('UTC'));
+        $recurenddate = new \DateTime($recurrence->enddate, new \DateTimeZone($timezone));
         $startdate = new \DateTime($this->event->start, new \DateTimeZone($timezone));
         $enddate = new \DateTime($this->event->end, new \DateTimeZone($timezone));
         // Est-ce que l'on est en journée entière ?
@@ -250,8 +250,10 @@ class Recurrence extends Melanie2Object {
         } else {
           // On position la date de fin basé sur la date de début en UTC
           // Voir MANTIS 3584: Les récurrences avec une date de fin se terminent à J+1 sur mobile
-          $startdate->setTimezone(new \DateTimeZone('UTC'));
-          $recurrence->enddate = $recurenddate->format('Y-m-d') . ' ' . $startdate->format('H:i:s');
+          //$startdate->setTimezone(new \DateTimeZone('UTC'));
+          //$recurrence->enddate = $recurenddate->format('Y-m-d') . ' ' . $startdate->format('H:i:s');
+          $recurenddate->setTimezone(new \DateTimeZone('UTC'));
+          $recurrence->enddate = $recurenddate->format('Y-m-d H:i:s');
         }
         // MANTIS 3610: Impossible de modifier la date de fin d'un evt récurrent si celui-ci était paramétré avec un nombre d'occurrences
         // Forcer le count a 0
@@ -259,7 +261,8 @@ class Recurrence extends Melanie2Object {
       } elseif (isset($rdata[ICS::COUNT])) {
         $recurrence->count = intval($rdata[ICS::COUNT]);
         // MANTIS 4103: Calculer une date de fin approximative pour un count
-        $enddate = new \DateTime($event->end);
+        $nbdays = $nbdays * $recurrence->count;
+        $enddate = new \DateTime($this->event->end);
         $enddate->add(new \DateInterval("P" . $nbdays . "D"));
         $recurrence->enddate = $enddate->format('Y-m-d H:i:s');
       } else {

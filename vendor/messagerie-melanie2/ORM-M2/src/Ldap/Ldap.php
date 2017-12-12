@@ -499,7 +499,7 @@ class Ldap {
 	 */
 	public function search($base_dn, $filter, $attributes = null, $attrsonly = 0, $sizelimit = 0) {
 	    M2Log::Log(M2Log::LEVEL_DEBUG, "Ldap->search($base_dn, $filter)");
-	    return @ldap_search($this->connection, $base_dn, $filter, $attributes, $attrsonly, $sizelimit);
+	    return @ldap_search($this->connection, $base_dn, $filter, $this->getMappingAttributes($attributes), $attrsonly, $sizelimit);
 	}
 	/**
 	 * Recherche dans le LDAP
@@ -514,7 +514,7 @@ class Ldap {
 	 */
 	public function read($base_dn, $filter, $attributes = null, $attrsonly = 0, $sizelimit = 0) {
 	  M2Log::Log(M2Log::LEVEL_DEBUG, "Ldap->read($base_dn, $filter)");
-	  return @ldap_read($this->connection, $base_dn, $filter, $attributes, $attrsonly, $sizelimit);
+	  return @ldap_read($this->connection, $base_dn, $filter, $this->getMappingAttributes($attributes), $attrsonly, $sizelimit);
 	}
 	/**
 	 * Recherche dans le LDAP
@@ -530,7 +530,7 @@ class Ldap {
 	 */
 	public function ldap_list($base_dn, $filter, $attributes = null, $attrsonly = 0, $sizelimit = 0) {
 	  M2Log::Log(M2Log::LEVEL_DEBUG, "Ldap->ldap_list($base_dn, $filter)");
-	  return @ldap_list($this->connection, $base_dn, $filter, $attributes, $attrsonly, $sizelimit);
+	  return @ldap_list($this->connection, $base_dn, $filter, $this->getMappingAttributes($attributes), $attrsonly, $sizelimit);
 	}
 	/**
 	 * Retourne les entrées trouvées via le Ldap search
@@ -687,6 +687,41 @@ class Ldap {
 	 */
 	public function issetConfig($name) {
 	    return isset($this->config[$name]);
+	}
+	/**
+	 * Retourne si un mapping du champ existe pour le serveur LDAP
+	 * @param string $name
+	 * @return boolean
+	 */
+	public function issetMapping($name) {
+	  return isset($this->config['mapping'][$name]);
+	}
+	/**
+	 * Retourne le nom du champ mappé configuré pour le serveur LDAP
+	 * @param string $name
+	 * @param string $defaultValue
+	 * @return NULL|string Nom du champ mappé
+	 */
+	public function getMapping($name, $defaultValue = null) {
+	  if (!isset($this->config['mapping']) || !isset($this->config['mapping'][$name])) {
+	    if (isset($defaultValue)) return $defaultValue;
+	    else return $name;
+	  }
+    return $this->config['mapping'][$name];
+	}
+	/**
+	 * Retourne les champs mappés
+	 * @param array $attributes
+	 * @return NULL|array
+	 */
+	public function getMappingAttributes($attributes) {
+	  if (is_null($attributes)) return null;
+	  $mapAttributes = array();
+	  foreach ($attributes as $attribute) {
+	    if (!isset($this->config['mapping']) || !isset($this->config['mapping'][$attribute])) $mapAttributes[] = $attribute;
+	    $mapAttributes[] = $this->config['mapping'][$attribute];
+	  }
+	  return $mapAttributes;
 	}
 }
 ?>

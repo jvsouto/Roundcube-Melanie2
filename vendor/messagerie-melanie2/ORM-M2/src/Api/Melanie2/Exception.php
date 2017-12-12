@@ -17,11 +17,9 @@
  */
 namespace LibMelanie\Api\Melanie2;
 
-use LibMelanie\Lib\Melanie2Object;
 use LibMelanie\Objects\EventMelanie;
 use LibMelanie\Objects\HistoryMelanie;
 use LibMelanie\Config\ConfigMelanie;
-use LibMelanie\Config\MappingMelanie;
 use LibMelanie\Exceptions;
 use LibMelanie\Log\M2Log;
 
@@ -77,6 +75,7 @@ class Exception extends Event {
   // Constantes
   const RECURRENCE_ID = '@RECURRENCE-ID';
   const FORMAT_ID = 'Ymd';
+  const FORMAT_REC_ID = 'Y-m-d H:i:s';
   const FORMAT_STR = 'YYYYmmdd';
   
   /**
@@ -193,6 +192,9 @@ class Exception extends Event {
     if ($this->deleted)
       return false;
     
+    if (!isset($this->owner)) {
+      $this->owner = $this->usermelanie->uid;
+    }
     // Sauvegarde l'objet
     $insert = $this->objectmelanie->save();
     if (!is_null($insert)) {
@@ -214,7 +216,7 @@ class Exception extends Event {
         return $insert;
     }
     // TODO: Test - Nettoyage mémoire
-    gc_collect_cycles();
+    //gc_collect_cycles();
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->save() Rien a sauvegarder: return null");
     return null;
   }
@@ -235,7 +237,7 @@ class Exception extends Event {
     else
       $this->deleted = false;
     // TODO: Test - Nettoyage mémoire
-    gc_collect_cycles();
+    //gc_collect_cycles();
     return $deleted;
   }
   
@@ -256,7 +258,7 @@ class Exception extends Event {
       $this->deleted = true;
     }
     // TODO: Test - Nettoyage mémoire
-    gc_collect_cycles();
+    //gc_collect_cycles();
     return $exist;
   }
   
@@ -322,5 +324,23 @@ class Exception extends Event {
     if (!isset($this->objectmelanie))
       throw new Exceptions\ObjectMelanieUndefinedException();
     return substr($this->objectmelanie->uid, 0, strlen($this->objectmelanie->uid) - strlen('-' . self::FORMAT_STR . self::RECURRENCE_ID));
+  }
+  /**
+   * Mapping organizer field
+   */
+  protected function getMapOrganizer() {
+    M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->getMapOrganizer()");
+    if (!isset($this->organizer)) {
+      if (isset($this->eventParent->organizer) && !empty($this->eventParent->organizer->uid)) {
+        $this->organizer = $this->eventParent->organizer;
+      }
+      else {
+        $this->organizer = new Organizer($this);
+        // Ajouter l'organisateur sur l'événement parent pour les occurrences suivantes
+        $this->eventParent->organizer = $this->organizer;
+      }
+    }      
+      
+    return $this->organizer;
   }
 }

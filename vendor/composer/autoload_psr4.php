@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'LibMelanie\\' => array($vendorDir . '/messagerie-melanie2/ORM-M2/src'),
+    'Composer\\Semver\\' => array($vendorDir . '/composer/semver/src'),
 );

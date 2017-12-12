@@ -25,7 +25,7 @@ use LibMelanie\Log\M2Log;
 /**
  * Classe pour la gestion des Sync pour les calendriers
  * Certains champs sont mappés directement ou passe par des classes externes
- * 
+ *
  * @author PNE Messagerie/Apitech
  * @package Librairie Mélanie2
  * @subpackage API Mélanie2
@@ -39,10 +39,13 @@ use LibMelanie\Log\M2Log;
  * @method CalendarSync[] listCalendarSync($syncToken, $limit) Permet de lister les CalendarSync d'un calendrier
  */
 class CalendarSync extends Melanie2Object {
+
+  // Constantes
+  const RECURRENCE_ID = '@RECURRENCE-ID';
   
   /**
    * Mapping des actions entre la base et SabreDAV
-   * 
+   *
    * @var array
    */
   private static $actionMapper = [
@@ -50,26 +53,26 @@ class CalendarSync extends Melanie2Object {
       'mod' => 'modified',
       'del' => 'deleted'
   ];
-  
+
   /**
    * Constructeur de l'objet
-   * 
-   * @param CalendarMelanie $calendarmelanie          
+   *
+   * @param CalendarMelanie $calendarmelanie
    */
   function __construct($calendarmelanie = null) {
     // Défini la classe courante
     $this->get_class = get_class($this);
-    
+
     // M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class."->__construct()");
     // Définition de la propriété de l'objet
     $this->objectmelanie = new ObjectMelanie('CalendarSync');
-    
+
     // Définition des objets associés
     if (isset($calendarmelanie)) {
       $this->objectmelanie->calendar = $calendarmelanie->id;
     }
   }
-  
+
   /**
    * ***************************************************
    * METHOD MAPPING
@@ -77,7 +80,7 @@ class CalendarSync extends Melanie2Object {
   /**
    * Ne pas implémenter la sauvegarde pour l'instant
    * Le SyncToken est alimenté par le trigger
-   * 
+   *
    * @return boolean
    */
   function save() {
@@ -86,16 +89,16 @@ class CalendarSync extends Melanie2Object {
   /**
    * Ne pas implémenter la suppression pour l'instant
    * Le SyncToken est alimenté par le trigger
-   * 
+   *
    * @return boolean
    */
   function delete() {
     return false;
   }
-  
+
   /**
    * Liste les actions par uid depuis le dernier token
-   * 
+   *
    * @param integer $limit
    *          [Optionnel]
    * @param string $startDate
@@ -115,29 +118,47 @@ class CalendarSync extends Melanie2Object {
       $_calendarSyncs = $this->objectmelanie->getList(null, null, $operators, 'token', false, $limit);
       foreach ($_calendarSyncs as $_calendarSync) {
         $mapAct = self::$actionMapper[$_calendarSync->action];
-        $result[$mapAct][] = $_calendarSync->uid . '.ics';
+        // MANTIS 0004667: [CalendarSync] Nettoyer les uid en @RECURRENCE-ID
+        $uid = $_calendarSync->uid;
+        if (strpos($uid, self::RECURRENCE_ID) !== false) {
+          $uid = substr($uid, 0, strlen($uid) - 24);
+          $mapAct = self::$actionMapper['mod'];
+        }
+        // MANTIS 0004696: [SyncToken] Ne retourner qu'un seul uid
+        $uid = $uid . '.ics';
+        if (!in_array($uid, $result['added'])
+            && !in_array($uid, $result['modified'])
+            && !in_array($uid, $result['deleted'])) {
+          $result[$mapAct][] = $uid;
+        }        
       }
     } else {
       $event = new \LibMelanie\Api\Melanie2\Event();
       $event->calendar = $this->objectmelanie->calendar;
       if (isset($startDate)) {
         $event->start = $startDate;
+        $event->recurrence->type = \LibMelanie\Api\Melanie2\Recurrence::RECURTYPE_NORECUR;
+        $event->recurrence->enddate = $startDate;
+        $filter = "#calendar# AND (#start# OR (#type# AND #enddate#))";
         $events = $event->getList([
             'uid'
-        ], null, [
-            'start' => \LibMelanie\Config\MappingMelanie::sup
+        ], $filter, [
+            'calendar'  => \LibMelanie\Config\MappingMelanie::eq,
+            'start'     => \LibMelanie\Config\MappingMelanie::sup,
+            'type'      => \LibMelanie\Config\MappingMelanie::sup,
+            'enddate'   => \LibMelanie\Config\MappingMelanie::supeq,
         ]);
       } else {
         $events = $event->getList([
             'uid'
         ]);
       }
-      
+
       foreach ($events as $_event) {
         $result['added'][] = $_event->uid . '.ics';
       }
     }
-    
+
     return $result;
   }
 

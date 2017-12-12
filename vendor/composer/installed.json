@@ -1,26 +1,91 @@
 [
     {
-        "name": "roundcube/plugin-installer",
-        "version": "0.1.8",
-        "version_normalized": "0.1.8.0",
+        "name": "composer/semver",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
-            "url": "https://github.com/roundcube/plugin-installer.git",
-            "reference": "43f0938f2c4ce6885c5cb7c5c43d13e8fdc8b8a8"
+            "url": "https://github.com/composer/semver.git",
+            "reference": "2b303e43d14d15cc90c8e8db4a1cdb6259f1a5c5"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/roundcube/plugin-installer/zipball/43f0938f2c4ce6885c5cb7c5c43d13e8fdc8b8a8",
-            "reference": "43f0938f2c4ce6885c5cb7c5c43d13e8fdc8b8a8",
+            "url": "https://api.github.com/repos/composer/semver/zipball/2b303e43d14d15cc90c8e8db4a1cdb6259f1a5c5",
+            "reference": "2b303e43d14d15cc90c8e8db4a1cdb6259f1a5c5",
             "shasum": ""
         },
         "require": {
+            "php": "^5.3.2 || ^7.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^4.5 || ^5.0.5",
+            "phpunit/phpunit-mock-objects": "2.3.0 || ^3.0"
+        },
+        "time": "2017-11-06T09:05:54+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Composer\\Semver\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Nils Adermann",
+                "email": "naderman@naderman.de",
+                "homepage": "http://www.naderman.de"
+            },
+            {
+                "name": "Jordi Boggiano",
+                "email": "j.boggiano@seld.be",
+                "homepage": "http://seld.be"
+            },
+            {
+                "name": "Rob Bast",
+                "email": "rob.bast@gmail.com",
+                "homepage": "http://robbast.nl"
+            }
+        ],
+        "description": "Semver library that offers utilities, version constraint parsing and validation.",
+        "keywords": [
+            "semantic",
+            "semver",
+            "validation",
+            "versioning"
+        ]
+    },
+    {
+        "name": "roundcube/plugin-installer",
+        "version": "0.1.9",
+        "version_normalized": "0.1.9.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/roundcube/plugin-installer.git",
+            "reference": "782420af7fb3f24295a61101d7e9296110c894e4"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/roundcube/plugin-installer/zipball/782420af7fb3f24295a61101d7e9296110c894e4",
+            "reference": "782420af7fb3f24295a61101d7e9296110c894e4",
+            "shasum": ""
+        },
+        "require": {
+            "composer/semver": "^1.4.2",
             "php": ">=5.3.0"
         },
         "require-dev": {
             "composer/composer": "*"
         },
-        "time": "2015-12-22T11:29:24+00:00",
+        "time": "2017-10-29T16:13:28+00:00",
         "bin": [
             "src/bin/rcubeinitdb.sh"
         ],
@@ -113,37 +178,6 @@
         "description": "This package helps you to encode and decode punycode strings easily."
     },
     {
-        "name": "pear-pear.php.net/Mail_Mime",
-        "version": "1.10.0",
-        "version_normalized": "1.10.0.0",
-        "dist": {
-            "type": "file",
-            "url": "https://pear.php.net/get/Mail_Mime-1.10.0.tgz",
-            "reference": null,
-            "shasum": null
-        },
-        "require": {
-            "php": ">=5.0.0.0"
-        },
-        "replace": {
-            "pear-pear/mail_mime": "== 1.10.0.0"
-        },
-        "type": "pear-library",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                ""
-            ]
-        },
-        "include-path": [
-            "/"
-        ],
-        "license": [
-            "BSD Style"
-        ],
-        "description": "Mail_Mime provides classes to deal with the creation and manipulation of MIME messages.\nIt allows people to create e-mail messages consisting of:\n* Text Parts\n* HTML Parts\n* Inline HTML Images\n* Attachments\n* Attached messages\n\nIt supports big messages, base64 and quoted-printable encodings and\nnon-ASCII characters in filenames, subjects, recipients, etc. encoded\nusing RFC2047 and/or RFC2231."
-    },
-    {
         "name": "pear-pear.php.net/Net_Socket",
         "version": "1.0.14",
         "version_normalized": "1.0.14.0",
@@ -170,7 +204,7 @@
             "/"
         ],
         "license": [
-            "PHP License"
+            "BSD-2-Clause"
         ],
         "description": "Net_Socket is a class interface to TCP sockets.  It provides blocking\n  and non-blocking operation, with different reading and writing modes\n  (byte-wise, block-wise, line-wise and special formats like network\n  byte-order ip addresses)."
     },
@@ -425,55 +459,6 @@
         "description": "Minimal set of PEAR core files to be used as composer dependency"
     },
     {
-        "name": "kolab/net_ldap3",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://git.kolab.org/diffusion/PNL/php-net_ldap.git",
-            "reference": "51afe33906e1c9f5cf0811271b29b08c615c95ce"
-        },
-        "require": {
-            "pear/net_ldap2": ">=2.0.12",
-            "php": ">=5.3.3"
-        },
-        "time": "2017-03-08T07:40:52+00:00",
-        "type": "library",
-        "installation-source": "source",
-        "autoload": {
-            "classmap": [
-                "lib/"
-            ]
-        },
-        "license": [
-            "GPL-3.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen van Meeuwen",
-                "email": "vanmeeuwen@kolabsys.com",
-                "role": "Lead"
-            },
-            {
-                "name": "Aleksander Machniak",
-                "email": "machniak@kolabsys.com",
-                "role": "Developer"
-            },
-            {
-                "name": "Thomas Bruederli",
-                "email": "roundcube@gmail.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "A successor of the PEAR:Net_LDAP2 module providing advanced functionality for accessing LDAP directories",
-        "homepage": "http://git.kolab.org/pear/Net_LDAP3/",
-        "keywords": [
-            "ldap",
-            "pear",
-            "vlv"
-        ]
-    },
-    {
         "name": "roundcube/net_sieve",
         "version": "1.5.4",
         "version_normalized": "1.5.4.0",
@@ -538,18 +523,49 @@
         }
     },
     {
+        "name": "pear-pear.php.net/Mail_Mime",
+        "version": "1.10.2",
+        "version_normalized": "1.10.2.0",
+        "dist": {
+            "type": "file",
+            "url": "https://pear.php.net/get/Mail_Mime-1.10.2.tgz",
+            "reference": null,
+            "shasum": null
+        },
+        "require": {
+            "php": ">=5.0.0.0"
+        },
+        "replace": {
+            "pear-pear/mail_mime": "== 1.10.2.0"
+        },
+        "type": "pear-library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                ""
+            ]
+        },
+        "include-path": [
+            "/"
+        ],
+        "license": [
+            "BSD Style"
+        ],
+        "description": "Mail_Mime provides classes to deal with the creation and manipulation of MIME messages.\nIt allows people to create e-mail messages consisting of:\n* Text Parts\n* HTML Parts\n* Inline HTML Images\n* Attachments\n* Attached messages\n\nIt supports big messages, base64 and quoted-printable encodings and\nnon-ASCII characters in filenames, subjects, recipients, etc. encoded\nusing RFC2047 and/or RFC2231."
+    },
+    {
         "name": "messagerie-melanie2/ORM-M2",
-        "version": "0.3.0.7",
-        "version_normalized": "0.3.0.7",
+        "version": "0.3.0.24",
+        "version_normalized": "0.3.0.24",
         "source": {
             "type": "git",
             "url": "https://github.com/messagerie-melanie2/ORM-M2.git",
-            "reference": "ef4b5dc9add2a1cda5b282c3154b4b1f11bd194c"
+            "reference": "dc9c982d0bb99650934c18e59df5b0422cecd932"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/messagerie-melanie2/ORM-M2/zipball/ef4b5dc9add2a1cda5b282c3154b4b1f11bd194c",
-            "reference": "ef4b5dc9add2a1cda5b282c3154b4b1f11bd194c",
+            "url": "https://api.github.com/repos/messagerie-melanie2/ORM-M2/zipball/dc9c982d0bb99650934c18e59df5b0422cecd932",
+            "reference": "dc9c982d0bb99650934c18e59df5b0422cecd932",
             "shasum": ""
         },
         "require": {
@@ -560,7 +576,7 @@
         "require-dev": {
             "composer/composer": "*"
         },
-        "time": "2017-04-21T13:56:29+00:00",
+        "time": "2017-11-22T16:28:12+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -591,7 +607,7 @@
             "Tasks"
         ],
         "support": {
-            "source": "https://github.com/messagerie-melanie2/ORM-M2/tree/0.3.0.7",
+            "source": "https://github.com/messagerie-melanie2/ORM-M2/tree/0.3.0.24",
             "issues": "https://github.com/messagerie-melanie2/ORM-M2/issues"
         }
     },
@@ -691,5 +707,54 @@
             }
         ],
         "description": "More info available on: http://pear.php.net/package/Net_Socket"
+    },
+    {
+        "name": "kolab/net_ldap3",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://git.kolab.org/diffusion/PNL/php-net_ldap.git",
+            "reference": "d2d74d6aaa43af3dd1735d5afdc51ccd2f78e837"
+        },
+        "require": {
+            "pear/net_ldap2": ">=2.0.12",
+            "php": ">=5.3.3"
+        },
+        "time": "2017-11-24T10:59:50+00:00",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "classmap": [
+                "lib/"
+            ]
+        },
+        "license": [
+            "GPL-3.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen van Meeuwen",
+                "email": "vanmeeuwen@kolabsys.com",
+                "role": "Lead"
+            },
+            {
+                "name": "Aleksander Machniak",
+                "email": "machniak@kolabsys.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Thomas Bruederli",
+                "email": "roundcube@gmail.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "A successor of the PEAR:Net_LDAP2 module providing advanced functionality for accessing LDAP directories",
+        "homepage": "http://git.kolab.org/pear/Net_LDAP3/",
+        "keywords": [
+            "ldap",
+            "pear",
+            "vlv"
+        ]
     }
 ]

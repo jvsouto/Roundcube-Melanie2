@@ -74,7 +74,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.kolab.org/diffusion/PNL/php-net_ldap.git",
-                "reference": "4c21bdebaa62d05a36f3ef3eee4e9742875d7e57"
+                "reference": "d2d74d6aaa43af3dd1735d5afdc51ccd2f78e837"
             },
             "require": {
                 "pear/net_ldap2": ">=2.0.12",
@@ -113,20 +113,20 @@
                 "pear",
                 "vlv"
             ],
-            "time": "2017-08-07T12:48:10+00:00"
+            "time": "2017-11-24 10:59:50"
         },
         {
             "name": "messagerie-melanie2/ORM-M2",
-            "version": "0.3.0.22",
+            "version": "0.3.0.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/messagerie-melanie2/ORM-M2.git",
-                "reference": "2c8dbb470637b2f2ac824bd358f394215f0fa3b4"
+                "reference": "dc9c982d0bb99650934c18e59df5b0422cecd932"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/messagerie-melanie2/ORM-M2/zipball/2c8dbb470637b2f2ac824bd358f394215f0fa3b4",
-                "reference": "2c8dbb470637b2f2ac824bd358f394215f0fa3b4",
+                "url": "https://api.github.com/repos/messagerie-melanie2/ORM-M2/zipball/dc9c982d0bb99650934c18e59df5b0422cecd932",
+                "reference": "dc9c982d0bb99650934c18e59df5b0422cecd932",
                 "shasum": ""
             },
             "require": {
@@ -166,10 +166,10 @@
                 "Tasks"
             ],
             "support": {
-                "source": "https://github.com/messagerie-melanie2/ORM-M2/tree/0.3.0.22",
+                "source": "https://github.com/messagerie-melanie2/ORM-M2/tree/0.3.0.24",
                 "issues": "https://github.com/messagerie-melanie2/ORM-M2/issues"
             },
-            "time": "2017-10-18T14:35:18+00:00"
+            "time": "2017-11-22T16:28:12+00:00"
         },
         {
             "name": "pear-pear.php.net/Auth_SASL",
@@ -264,10 +264,10 @@
         },
         {
             "name": "pear-pear.php.net/Mail_Mime",
-            "version": "1.10.1",
+            "version": "1.10.2",
             "dist": {
                 "type": "file",
-                "url": "https://pear.php.net/get/Mail_Mime-1.10.1.tgz",
+                "url": "https://pear.php.net/get/Mail_Mime-1.10.2.tgz",
                 "reference": null,
                 "shasum": null
             },
@@ -275,7 +275,7 @@
                 "php": ">=5.0.0.0"
             },
             "replace": {
-                "pear-pear/mail_mime": "== 1.10.1.0"
+                "pear-pear/mail_mime": "== 1.10.2.0"
             },
             "type": "pear-library",
             "autoload": {
@@ -788,16 +788,16 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.7.0",
+            "version": "1.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e"
+                "reference": "103e21127bc63462af5f5165064cdd960f95fa14"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e",
-                "reference": "3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/103e21127bc63462af5f5165064cdd960f95fa14",
+                "reference": "103e21127bc63462af5f5165064cdd960f95fa14",
                 "shasum": ""
             },
             "require": {
@@ -806,9 +806,14 @@
             "require-dev": {
                 "doctrine/collections": "^1.0",
                 "doctrine/common": "^2.6",
-                "phpunit/phpunit": "^4.1"
+                "phpunit/phpunit": "^5.7"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-1.x": "1.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "DeepCopy\\": "src/DeepCopy/"
@@ -829,7 +834,7 @@
                 "object",
                 "object graph"
             ],
-            "time": "2017-10-19T19:58:43+00:00"
+            "time": "2017-11-29T14:36:38+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -887,22 +892,22 @@
         },
         {
             "name": "phpdocumentor/reflection-docblock",
-            "version": "3.2.2",
+            "version": "3.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionDocBlock.git",
-                "reference": "4aada1f93c72c35e22fb1383b47fee43b8f1d157"
+                "reference": "bf329f6c1aadea3299f08ee804682b7c45b326a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/4aada1f93c72c35e22fb1383b47fee43b8f1d157",
-                "reference": "4aada1f93c72c35e22fb1383b47fee43b8f1d157",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/bf329f6c1aadea3299f08ee804682b7c45b326a2",
+                "reference": "bf329f6c1aadea3299f08ee804682b7c45b326a2",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.5",
-                "phpdocumentor/reflection-common": "^1.0@dev",
-                "phpdocumentor/type-resolver": "^0.3.0",
+                "php": "^5.6 || ^7.0",
+                "phpdocumentor/reflection-common": "^1.0.0",
+                "phpdocumentor/type-resolver": "^0.4.0",
                 "webmozart/assert": "^1.0"
             },
             "require-dev": {
@@ -928,20 +933,20 @@
                 }
             ],
             "description": "With this component, a library can provide support for annotations via DocBlocks or otherwise retrieve information that is embedded in a DocBlock.",
-            "time": "2017-08-08T06:39:58+00:00"
+            "time": "2017-11-10T14:09:06+00:00"
         },
         {
             "name": "phpdocumentor/type-resolver",
-            "version": "0.3.0",
+            "version": "0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "fb3933512008d8162b3cdf9e18dba9309b7c3773"
+                "reference": "9c977708995954784726e25d0cd1dddf4e65b0f7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/fb3933512008d8162b3cdf9e18dba9309b7c3773",
-                "reference": "fb3933512008d8162b3cdf9e18dba9309b7c3773",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/9c977708995954784726e25d0cd1dddf4e65b0f7",
+                "reference": "9c977708995954784726e25d0cd1dddf4e65b0f7",
                 "shasum": ""
             },
             "require": {
@@ -975,7 +980,7 @@
                     "email": "me@mikevanriel.com"
                 }
             ],
-            "time": "2017-06-03T08:32:36+00:00"
+            "time": "2017-07-14T14:27:02+00:00"
         },
         {
             "name": "phpspec/prophecy",
@@ -983,12 +988,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "ddd9d7ffff1d7c3acd1a79a8e21d5ee5ea7beace"
+                "reference": "e4ed002c67da8eceb0eb8ddb8b3847bb53c5c2bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/ddd9d7ffff1d7c3acd1a79a8e21d5ee5ea7beace",
-                "reference": "ddd9d7ffff1d7c3acd1a79a8e21d5ee5ea7beace",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/e4ed002c67da8eceb0eb8ddb8b3847bb53c5c2bf",
+                "reference": "e4ed002c67da8eceb0eb8ddb8b3847bb53c5c2bf",
                 "shasum": ""
             },
             "require": {
@@ -1038,7 +1043,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2017-11-07T12:00:44+00:00"
+            "time": "2017-11-24T13:59:53+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -1109,12 +1114,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-file-iterator.git",
-                "reference": "63304292f3cf89b2382b90dd7a2abf9e0ba232f9"
+                "reference": "730b01bc3e867237eaac355e06a36b85dd93a8b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-file-iterator/zipball/63304292f3cf89b2382b90dd7a2abf9e0ba232f9",
-                "reference": "63304292f3cf89b2382b90dd7a2abf9e0ba232f9",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-file-iterator/zipball/730b01bc3e867237eaac355e06a36b85dd93a8b4",
+                "reference": "730b01bc3e867237eaac355e06a36b85dd93a8b4",
                 "shasum": ""
             },
             "require": {
@@ -1148,7 +1153,7 @@
                 "filesystem",
                 "iterator"
             ],
-            "time": "2017-10-30T04:21:02+00:00"
+            "time": "2017-11-27T13:52:08+00:00"
         },
         {
             "name": "phpunit/php-text-template",
@@ -1246,12 +1251,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-token-stream.git",
-                "reference": "958103f327daef5dd0bb328dec53e0a9e43cfaf7"
+                "reference": "58bd196ce8bc49389307b3787934a5117db80fea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/958103f327daef5dd0bb328dec53e0a9e43cfaf7",
-                "reference": "958103f327daef5dd0bb328dec53e0a9e43cfaf7",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/58bd196ce8bc49389307b3787934a5117db80fea",
+                "reference": "58bd196ce8bc49389307b3787934a5117db80fea",
                 "shasum": ""
             },
             "require": {
@@ -1287,7 +1292,7 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2017-03-07T08:21:50+00:00"
+            "time": "2017-12-04T15:11:28+00:00"
         },
         {
             "name": "phpunit/phpunit",
@@ -1295,12 +1300,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "4683365268a066342d6a829496c58d89a431ad72"
+                "reference": "a8a55d1f10ab29a793e8353fc49aaa44ba7b97ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/4683365268a066342d6a829496c58d89a431ad72",
-                "reference": "4683365268a066342d6a829496c58d89a431ad72",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/a8a55d1f10ab29a793e8353fc49aaa44ba7b97ba",
+                "reference": "a8a55d1f10ab29a793e8353fc49aaa44ba7b97ba",
                 "shasum": ""
             },
             "require": {
@@ -1369,7 +1374,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-11-10T09:13:14+00:00"
+            "time": "2017-12-01T05:15:50+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -1949,12 +1954,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "e99024f324a7fa927c3a7992ed6f359e3a5ccc3b"
+                "reference": "f6a99b95b338799645fe9f7880d7d4ca1bf79cc1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/e99024f324a7fa927c3a7992ed6f359e3a5ccc3b",
-                "reference": "e99024f324a7fa927c3a7992ed6f359e3a5ccc3b",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/f6a99b95b338799645fe9f7880d7d4ca1bf79cc1",
+                "reference": "f6a99b95b338799645fe9f7880d7d4ca1bf79cc1",
                 "shasum": ""
             },
             "require": {
@@ -1999,7 +2004,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2017-10-09T14:52:13+00:00"
+            "time": "2017-12-04T18:15:22+00:00"
         },
         {
             "name": "webmozart/assert",

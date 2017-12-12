@@ -48,6 +48,7 @@ use LibMelanie\Lib\EventToICS;
  * @property Event::CLASS_* $class Class de l'évènement (privé/public)
  * @property int $alarm Alarme en minute (TODO: class Alarm)
  * @property Attendee[] $attendees Tableau d'objets Attendee
+ * @property boolean $hasattendees Est-ce que cette instance de l'événement a des participants
  * @property string $start String au format compatible DateTime, date de début
  * @property string $end String au format compatible DateTime, date de fin
  * @property int $modified Timestamp de la modification de l'évènement
@@ -92,13 +93,13 @@ class Event extends Melanie2Object {
    * 
    * @var string
    */
-  private $organizer;
+  protected $organizer;
   /**
    * L'évènement est supprimé
    * 
-   * @var bool
+   * @var boolean
    */
-  private $deleted;
+  protected $deleted;
   /**
    * Tableau d'exceptions pour la récurrence
    * 
@@ -116,19 +117,19 @@ class Event extends Melanie2Object {
    * 
    * @var string[$attribute]
    */
-  private $attributes;
+  protected $attributes;
   /**
    * Permet de savoir si les attributs ont déjà été chargés depuis la base
    * 
    * @var bool
    */
-  private $attributes_loaded = false;
+  protected $attributes_loaded = false;
   /**
    * Tableau contenant les pièces jointes de l'évènement
    * 
    * @var Attachment[]
    */
-  private $attachments;
+  protected $attachments;
   
   /**
    * Object VCalendar disponible via le VObject
@@ -143,7 +144,7 @@ class Event extends Melanie2Object {
    * 
    * @var boolean
    */
-  private $move = false;
+  protected $move = false;
   
   /**
    * La génération de l'ICS doit elle retourner des freebusy
@@ -282,25 +283,30 @@ class Event extends Melanie2Object {
       // Création de l'objet s'il n'existe pas
       if (!isset($this->attributes))
         $this->attributes = [];
-      $eventproperty = new EventProperty();
-      $eventproperty->event = $this->realuid;
-      if (isset($this->calendarmelanie)) {
-        $eventproperty->calendar = $this->calendarmelanie->id;
-      } else {
-        $eventproperty->calendar = $this->calendar;
+      if (isset($this->attributes[$name])) {
+        $this->attributes[$name]->value = $value;
       }
-      // Problème de User avec DAViCal
-      if (isset($this->calendarmelanie)) {
-        $eventproperty->user = $this->calendarmelanie->owner;
-      } else if (isset($this->owner)) {
-        $eventproperty->user = $this->owner;
-      } else {
-        $eventproperty->user = '';
+      else {
+        $eventproperty = new EventProperty();
+        $eventproperty->event = $this->realuid;
+        if (isset($this->calendarmelanie)) {
+          $eventproperty->calendar = $this->calendarmelanie->id;
+        } else {
+          $eventproperty->calendar = $this->calendar;
+        }
+        // Problème de User avec DAViCal
+        if (isset($this->calendarmelanie)) {
+          $eventproperty->user = $this->calendarmelanie->owner;
+        } else if (isset($this->owner)) {
+          $eventproperty->user = $this->owner;
+        } else {
+          $eventproperty->user = '';
+        }
+        
+        $eventproperty->key = $name;
+        $eventproperty->value = $value;
+        $this->attributes[$name] = $eventproperty;
       }
-      
-      $eventproperty->key = $name;
-      $eventproperty->value = $value;
-      $this->attributes[$name] = $eventproperty;
     }
   }
   /**
@@ -344,7 +350,7 @@ class Event extends Melanie2Object {
   private function saveAttendees() {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->saveAttendees()");
     // Détecter les attendees pour tous les évènements et exceptions
-    $hasAttendees = isset($this->objectmelanie->attendees) && count(unserialize($this->objectmelanie->attendees)) > 0;
+    $hasAttendees = $this->getMapHasAttendees();
     // Parcours les exceptions pour chercher les attendees
     if (!$hasAttendees) {
       $exceptions = $this->getMapExceptions();
@@ -359,22 +365,22 @@ class Event extends Melanie2Object {
     // Récupération de l'organisateur
     $organizer = $this->getMapOrganizer();
     if (!$hasAttendees || $organizer->extern || 
-    // MANTIS 4016: Gestion des COPY/MOVE
-    $this->move)
+        // MANTIS 4016: Gestion des COPY/MOVE
+        $this->move)
       return false;
     
     if (!is_null($organizer->calendar)) {
       $organizer_calendar_id = $organizer->calendar;
     } else {
       // Si l'évènement n'existe pas il faut essayer de récupérer l'évènement de l'organisateur
-      $listevents = new Event($this->usermelanie);
+      $listevents = new Event();
       $listevents->uid = $this->uid;
       // XXX: Problème dans la gestion des participants
       // N'utiliser l'organizer uid que s'il existe ?
       if (isset($this->objectmelanie->organizer_uid) && !empty($this->objectmelanie->organizer_uid)) {
         $listevents->owner = $this->objectmelanie->organizer_uid;
       }
-      $events = $listevents->getList();
+      $events = $listevents->getList(null, null, null, 'attendees', false);
       // Si l'évènement n'existe pas et que l'organisateur est différent, c'est un organisateur externe
       if (count($events) == 0) {
         if (strtolower($this->objectmelanie->organizer_uid) == strtolower($this->usermelanie->uid)) {
@@ -393,18 +399,19 @@ class Event extends Melanie2Object {
       // XXX on doit arriver ici quand le load ne retourne rien car l'évènement n'existe pas
       // Parcourir les évènements trouvés pour chercher l'évènement de l'organisateur
       foreach ($events as $_event) {
-        $attendees = $_event->attendees;
-        if (isset($attendees) && count($attendees) > 0) {
+        if ($_event->hasattendees) {
           $organizer_event = $_event;
-          $organizer_calendar_id = $_event->getMapOrganizer()->calendar;
+          $organizer_calendar_id = $_event->calendar;
           break;
-        } else if (isset($_event->exceptions) && is_array($_event->exceptions)) {
-          foreach ($_event->exceptions as $_exception) {
-            $attendees = $_exception->attendees;
-            if (isset($attendees) && count($attendees) > 0) {
-              $organizer_event = $_event;
-              $organizer_calendar_id = $_event->getMapOrganizer()->calendar;
-              break;
+        } else {
+          $exceptions = $_event->getMapExceptions();
+          if (isset($exceptions) && is_array($exceptions)) {
+            foreach ($exceptions as $_exception) {
+              if ($_exception->hasattendees) {
+                $organizer_event = $_event;
+                $organizer_calendar_id = $_event->calendar;
+                break;
+              }
             }
           }
         }
@@ -442,6 +449,9 @@ class Event extends Melanie2Object {
         foreach ($this->attendees as $attendee) {
           if (strtolower($attendee->uid) == strtolower($this->usermelanie->uid)) {
             $response = $attendee->response;
+            // MANTIS 0004708: Lors d'un "s'inviter" utiliser les informations de l'ICS
+            $att_email = $attendee->email;
+            $att_name = $attendee->name;
             break;
           }
         }
@@ -468,8 +478,9 @@ class Event extends Melanie2Object {
           // S'inviter dans la réunion
           if ($invite && ConfigMelanie::SELF_INVITE) {
             $attendee = new Attendee($organizer_event);
-            $attendee->email = $this->usermelanie->email;
-            $attendee->name = '';
+            // MANTIS 0004708: Lors d'un "s'inviter" utiliser les informations de l'ICS
+            $attendee->email = isset($att_email) ? $att_email : $this->usermelanie->email;
+            $attendee->name = isset($att_name) ? $att_name : '';
             $attendee->response = $response;
             $attendee->role = Attendee::ROLE_REQ_PARTICIPANT;
             $organizer_attendees[] = $attendee;
@@ -484,7 +495,7 @@ class Event extends Melanie2Object {
         // Exceptions de l'évènement de l'organisateur
         $organizer_event_exceptions = $organizer_event->getMapExceptions();
         // Parcour les exceptions pour le traitement
-        foreach ($this->getMapExceptions() as $recurrenceId => $exception) {
+        foreach ($this->exceptions as $recurrenceId => $exception) {
           if (!$exception->deleted) {
             if (!isset($exception->attendees))
               continue;
@@ -526,7 +537,7 @@ class Event extends Melanie2Object {
               $invite = true;
               $organizer_exception_attendees = $organizer_event_exception->attendees;
               foreach ($organizer_exception_attendees as $attendee) {
-                if (strtolower($attendee->uid) == strtolower($this->usermelanie->uid) && $response != Attendee::RESPONSE_NEED_ACTION && $attendee->response != $response) {
+                if (strtolower($attendee->uid) == strtolower($this->usermelanie->uid)) {
                   $attendee->response = $response;
                   $organizer_event_exception->attendees = $organizer_exception_attendees;
                   $save = true;
@@ -560,7 +571,7 @@ class Event extends Melanie2Object {
       }
     }
     // TODO: Test - Nettoyage mémoire
-    gc_collect_cycles();
+    //gc_collect_cycles();
     return true;
   }
   
@@ -691,13 +702,14 @@ class Event extends Melanie2Object {
     if (isset($events[$this->uid . $this->calendar])) {
       $this->modified = isset($events[$this->uid . $this->calendar]->modified) ? $events[$this->uid . $this->calendar]->modified : 0;
       $this->setMapExceptions($events[$this->uid . $this->calendar]->getMapExceptions());
+      $this->objectmelanie->setExist(true);
     }
     if (count($this->exceptions) > 0) {
       $this->deleted = true;
       return true;
     }
     // TODO: Test - Nettoyage mémoire
-    gc_collect_cycles();
+    //gc_collect_cycles();
     return false;
   }
   
@@ -743,8 +755,12 @@ class Event extends Melanie2Object {
         $exMod = $exMod || !is_null($res);
       }
     }
-    if ($this->deleted)
+    if ($this->deleted) {
+      // Sauvegarde des attributs
+      $this->saveAttributes();
       return false;
+    }
+      
     if ($exMod)
       $this->modified = time();
     if (!isset($this->owner)) {
@@ -767,7 +783,7 @@ class Event extends Melanie2Object {
         return $insert;
     }
     // TODO: Test - Nettoyage mémoire
-    gc_collect_cycles();
+    //gc_collect_cycles();
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->save() Rien a sauvegarder: return null");
     return null;
   }
@@ -807,8 +823,12 @@ class Event extends Melanie2Object {
       if (!is_null($history->save()))
         return true;
     }
+    else {
+      // Suppression des attributs liés à l'évènement
+      $this->deleteAttributes();
+    }
     // TODO: Test - Nettoyage mémoire
-    gc_collect_cycles();
+    //gc_collect_cycles();
     M2Log::Log(M2Log::LEVEL_ERROR, $this->get_class . "->delete() Error: return false");
     return false;
   }
@@ -828,7 +848,7 @@ class Event extends Melanie2Object {
     else
       $this->deleted = false;
     // TODO: Test - Nettoyage mémoire
-    gc_collect_cycles();
+    //gc_collect_cycles();
     return $ret;
   }
   
@@ -942,7 +962,7 @@ class Event extends Melanie2Object {
     // Détruit les variables pour libérer le plus rapidement de la mémoire
     unset($exceptions);
     // TODO: Test - Nettoyage mémoire
-    gc_collect_cycles();
+    //gc_collect_cycles();
     return $events;
   }
   
@@ -1093,7 +1113,14 @@ class Event extends Melanie2Object {
     }
     return $attendees;
   }
-  
+  /**
+   * Mapping hasattendees field
+   * @return boolean
+   */
+  protected function getMapHasAttendees() {
+    M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->getMapHasAttendees() : " . ((isset($this->objectmelanie->attendees) && $this->objectmelanie->attendees != "" && $this->objectmelanie->attendees != "a:0:{}") ? "true" : "false"));
+    return (isset($this->objectmelanie->attendees) && $this->objectmelanie->attendees != "" && $this->objectmelanie->attendees != "a:0:{}");
+  }
   /**
    * Mapping real uid field
    */
@@ -1118,7 +1145,7 @@ class Event extends Melanie2Object {
    */
   protected function getMapDeleted() {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->getMapDeleted()");
-    return $this->deleted;
+    return $this->deleted || $this->start == '1970-01-01 00:00:00';
   }
   
   /**
@@ -1228,6 +1255,7 @@ class Event extends Melanie2Object {
           $dateStart = new \DateTime($this->objectmelanie->start);
           $ex->recurrenceId = $dateEx->format("Y-m-d") . ' ' . $dateStart->format("H:i:s");
           $ex->uid = $this->objectmelanie->uid;
+          $ex->calendar = $this->objectmelanie->calendar;
           $ex->load();
           $this->exceptions[$dateEx->format("Ymd")] = $ex;
         }
@@ -1318,7 +1346,9 @@ class Event extends Melanie2Object {
       $path = str_replace('%e', $this->objectmelanie->uid, $path);
       $attachment->path = $path;
       M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->getMapAttachments() path : " . $attachment->path);
-      $this->attachments = $attachment->getList();
+      // MANTIS 0004689: Mauvaise optimisation du chargement des pièces jointes
+      $fields = ["id", "type", "path", "name", "modified", "owner"];
+      $this->attachments = $attachment->getList($fields);
       
       // Récupération des pièces jointes URL
       $attach_uri = $this->getAttribute('ATTACH-URI');

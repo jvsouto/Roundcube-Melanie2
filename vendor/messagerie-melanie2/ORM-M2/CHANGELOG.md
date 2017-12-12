@@ -1,3 +1,86 @@
+ORM M2 - 0.3.0.24
+------
+- 0004740: Considérer l'événement supprimé si start = 1970-01-01
+- 0004744: Une exception doit récupérer l'organisateur de l'événement maitre s'il existe
+- 0004746: Potentiel problème dans la recherche de l'organisateur
+
+ORM M2 - 0.3.0.23
+------
+- 0004730: [ICS] Problème de génération du recurrence id
+- 0004731: [ICS] Ne pas retourner les occurrences sans date
+- 0004721: [ICS] La conversion d'une alarme en semaine ne doit se faire que si elle tombe juste
+
+ORM M2 - 0.3.0.22
+------
+- 0004708: Lors d'un "s'inviter" utiliser les informations de l'ICS
+- 0004706: L'enregistrement d'une pièce jointe depuis l'ICS ne se fait pas dans le bon dossier vfs
+
+ORM M2 - 0.3.0.21
+------
+- 0004694: Forcer le Timezone quand il est différent de celui enregistré
+- 0004695: Enregistrer le timezone lors de la conversion depuis l'ICS
+
+ORM M2 - 0.3.0.20
+------
+- Problème de typage pour l'Exception
+- 0004692: Enregistrer la derniere requete SQL + ses parametres
+
+ORM M2 - 0.3.0.19
+------
+- 0004689: Mauvaise optimisation du chargement des pièces jointes
+
+ORM M2 - 0.3.0.18
+------
+- Suppression des appels au garbage collector suite à un problème de charge sur SabreDAV
+
+ORM M2 - 0.3.0.17
+------
+- Ajouter l'email dans les logs de l'organisateur
+- 0004675: Mauvaise détermination du calendrier de l'organisateur lors d'un FAKED MASTER
+- 0004677: Enregistrer le récurrence id d'une exception
+
+ORM M2 - 0.3.0.16
+------
+- 0004669: Modifier la class "Event" pour que la methode "exists" retourne true dans le cas d'un Faked Master
+- 0004668: [ICS] Conversion d'un événement sans DTSTART
+- 0004667: [CalendarSync] Nettoyer les uid en @RECURRENCE-ID
+
+ORM M2 - 0.3.0.15
+------
+- 0004618: La classe CalendarSync doit gérer les récurrences
+
+ORM M2 - 0.3.0.14
+------
+- HOTFIX journée entère 0004585: [ICS] Conversion DURATION en DTEND
+
+ORM M2 - 0.3.0.13
+------
+- HOTFIX journée entère 0004585: [ICS] Conversion DURATION en DTEND
+
+ORM M2 - 0.3.0.12
+------
+- 0004585: [ICS] Conversion DURATION en DTEND
+- 0004591: [ICS] Gestion du GMT pour DTSTART et DTEND
+
+ORM M2 - 0.3.0.11
+------
+- Problème de génération des ICS en mode vendor
+
+ORM M2 - 0.3.0.10
+------
+- 0004567: La date de fin de récurrence ne devrait pas être calculé
+
+
+ORM M2 - 0.3.0.9
+------
+- 0004566: La conversion d'un participant en ICS perd le CN
+
+
+ORM M2 - 0.3.0.8
+------
+- 0004537: Le calcul de la date de fin de récurrence n'est pas correct
+
+
 ORM M2 - 0.3.0.7
 ------
 - Problème d'utilisation du default path pour l'env
@@ -165,4 +248,3 @@ ORM M2 - 0.1.3
 - 0002887: [Agenda] Grouper le chargement des attributs supplémentaires
 - 0002888: [Général] Pouvoir récupérer une liste d'objets à partir de champs multivalués
 - 0002892: [Agenda] La méthode getList associe les évènements à un calendrier non chargé
-

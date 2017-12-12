@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd
+class ComposerStaticInit877ea556a72fbab14ebbdff131a56e2d
 {
     public static $files = array (
         '3a36fb0a6bafb8b516d4768ba4636f67' => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/includes/includes_conf.php',
@@ -15,12 +15,20 @@ class ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd
         array (
             'LibMelanie\\' => 11,
         ),
+        'C' => 
+        array (
+            'Composer\\Semver\\' => 16,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
         'LibMelanie\\' => 
         array (
             0 => __DIR__ . '/..' . '/messagerie-melanie2/ORM-M2/src',
+        ),
+        'Composer\\Semver\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/composer/semver/src',
         ),
     );
 
@@ -69,6 +77,14 @@ class ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd
         'Auth_SASL_Login' => __DIR__ . '/..' . '/pear-pear.php.net/Auth_SASL/Auth/SASL/Login.php',
         'Auth_SASL_Plain' => __DIR__ . '/..' . '/pear-pear.php.net/Auth_SASL/Auth/SASL/Plain.php',
         'Auth_SASL_SCRAM' => __DIR__ . '/..' . '/pear-pear.php.net/Auth_SASL/Auth/SASL/SCRAM.php',
+        'Composer\\Semver\\Comparator' => __DIR__ . '/..' . '/composer/semver/src/Comparator.php',
+        'Composer\\Semver\\Constraint\\AbstractConstraint' => __DIR__ . '/..' . '/composer/semver/src/Constraint/AbstractConstraint.php',
+        'Composer\\Semver\\Constraint\\Constraint' => __DIR__ . '/..' . '/composer/semver/src/Constraint/Constraint.php',
+        'Composer\\Semver\\Constraint\\ConstraintInterface' => __DIR__ . '/..' . '/composer/semver/src/Constraint/ConstraintInterface.php',
+        'Composer\\Semver\\Constraint\\EmptyConstraint' => __DIR__ . '/..' . '/composer/semver/src/Constraint/EmptyConstraint.php',
+        'Composer\\Semver\\Constraint\\MultiConstraint' => __DIR__ . '/..' . '/composer/semver/src/Constraint/MultiConstraint.php',
+        'Composer\\Semver\\Semver' => __DIR__ . '/..' . '/composer/semver/src/Semver.php',
+        'Composer\\Semver\\VersionParser' => __DIR__ . '/..' . '/composer/semver/src/VersionParser.php',
         'Console_CommandLine' => __DIR__ . '/..' . '/pear-pear.php.net/Console_CommandLine/Console/CommandLine.php',
         'Console_CommandLine_Action' => __DIR__ . '/..' . '/pear-pear.php.net/Console_CommandLine/Console/CommandLine/Action.php',
         'Console_CommandLine_Action_Callback' => __DIR__ . '/..' . '/pear-pear.php.net/Console_CommandLine/Console/CommandLine/Action/Callback.php',
@@ -218,11 +234,11 @@ class ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd::$prefixesPsr0;
-            $loader->fallbackDirsPsr0 = ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd::$fallbackDirsPsr0;
-            $loader->classMap = ComposerStaticInit3bd29e1fc3c77b1fd12095103ee7dacd::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit877ea556a72fbab14ebbdff131a56e2d::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit877ea556a72fbab14ebbdff131a56e2d::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit877ea556a72fbab14ebbdff131a56e2d::$prefixesPsr0;
+            $loader->fallbackDirsPsr0 = ComposerStaticInit877ea556a72fbab14ebbdff131a56e2d::$fallbackDirsPsr0;
+            $loader->classMap = ComposerStaticInit877ea556a72fbab14ebbdff131a56e2d::$classMap;
 
         }, null, ClassLoader::class);
     }

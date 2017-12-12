@@ -31,7 +31,7 @@ use LibMelanie\Api\Melanie2\Calendar;
 use LibMelanie\Log\M2Log;
 
 // Utilisation de la librairie Sabre VObject pour la conversion ICS
-require_once 'vendor/autoload.php';
+@include_once 'vendor/autoload.php';
 use Sabre\VObject;
 
 /**
@@ -153,50 +153,82 @@ class EventToICS {
 	    $first = true;
 	    $starttime = '';
 	    foreach ($event->exceptions as $exception) {
+	      $exRecId = $exception->getAttribute(ICS::RECURRENCE_ID);
+	      if (!isset($exRecId)) {
+	        if ($event->deleted) {
+	          $exRecId = date('Y-m-d', strtotime($exception->recurrenceId)) . ' ' . date('H:i:s', strtotime($exception->start));
+	        }
+	        else {
+	          $exRecId = date('Y-m-d', strtotime($exception->recurrenceId)) . ' ' . date('H:i:s', strtotime($event->start));
+	        }	        
+	      }
+	      $exdatetime = new \DateTime($exRecId, new \DateTimeZone($timezone));
+	      
 	      if ($event->deleted) {
 	        if ($first) {
 	          $first = false;
 	          $starttime = new \DateTime($exception->start, new \DateTimeZone($timezone));
 	          $endtime = new \DateTime($exception->end, new \DateTimeZone($timezone));
-	          $vevent->DTSTART = $starttime;
-	          $rdate = clone $starttime;
-	          $rdate->setTimezone(new \DateTimeZone('UTC'));
-	          $date = $rdate->format('Ymd') . 'T' . $rdate->format('His') . 'Z';
+	          $rdate_d = clone $exdatetime;
+	          $rdate_d->setTimezone(new \DateTimeZone('UTC'));	          	         
 	          if ($starttime->format('His') == '000000' && $endtime->format('His') == '000000') {
+	            $date = $rdate_d->format('Ymd');
 	            $vevent->add(ICS::RDATE, $date, [ICS::VALUE => ICS::VALUE_DATE]);
+	            $vevent->add(ICS::DTSTART, $exdatetime->format('Ymd'), [ICS::VALUE => ICS::VALUE_DATE]);
 	          } else {
+	            $date = $rdate_d->format('Ymd') . 'T' . $rdate_d->format('His') . 'Z';
 	            $vevent->add(ICS::RDATE, $date, [ICS::VALUE => ICS::VALUE_DATE_TIME]);
+	            $vevent->DTSTART = clone $exdatetime;
 	          }
 	          $dateTime = new \DateTime('@'.$exception->modified, new \DateTimeZone($timezone));
 	          $dateTime->setTimezone(new \DateTimeZone('UTC'));
 	          $date = $dateTime->format('Ymd') . 'T' . $dateTime->format('His') . 'Z';
-	          $vevent->add(ICS::DTSTAMP, $date);
-	          $vevent->add(ICS::LAST_MODIFIED, $date);
-	          $vevent->add(ICS::CREATED, $date);
-	          $vevent->SUMMARY = $exception->title;
-	          $vevent->add(ICS::X_MOZ_GENERATION, count($event->exceptions));
+	          // Attributs sur l'alarme
+	          $x_moz_lastack = $event->getAttribute(ICS::X_MOZ_LASTACK);
+	          if (isset($x_moz_lastack)) $vevent->{ICS::X_MOZ_LASTACK} = $x_moz_lastack;
+	          $x_moz_snooze_time = $event->getAttribute(ICS::X_MOZ_SNOOZE_TIME);
+	          if (isset($x_moz_snooze_time)) $vevent->{ICS::X_MOZ_SNOOZE_TIME} = $x_moz_snooze_time;
+	          // X Moz Generation
+	          $moz_generation = $event->getAttribute(ICS::X_MOZ_GENERATION);
+	          if (isset($moz_generation)) $vevent->add(ICS::X_MOZ_GENERATION, $moz_generation);
+	          // DTSTAMP
+	          $dtstamp = $event->getAttribute(ICS::DTSTAMP);
+	          if (isset($dtstamp)) $vevent->add(ICS::DTSTAMP, $dtstamp);
+	          else $vevent->add(ICS::DTSTAMP, $date);
+	          // LAST-MODIFIED
+	          $last_modified = $event->getAttribute(ICS::LAST_MODIFIED);
+	          if (isset($last_modified)) $vevent->add(ICS::LAST_MODIFIED, $last_modified);
+	          else $vevent->add(ICS::LAST_MODIFIED, $date);
+	          // CREATED 
+	          $created = $event->getAttribute(ICS::CREATED);
+	          if (isset($created)) $vevent->add(ICS::CREATED, $created);
+	          else $vevent->add(ICS::CREATED, $date);
+	          //$vevent->SUMMARY = $exception->title;
+	          //$vevent->add(ICS::X_MOZ_GENERATION, count($event->exceptions));
 	          $vevent->add(ICS::X_MOZ_FAKED_MASTER, "1");
-	        }
-	        $exdatetime = new \DateTime($exception->recurrenceId, new \DateTimeZone($timezone));
+	        }	        
 	        if (!isset($vevent->DTSTART)) {
 	          continue;
 	        }
-	        $date = $exdatetime->format('Ymd') . 'T' . $vevent->DTSTART->getDateTime()->format('His');
+	        if ($vevent->DTSTART[ICS::VALUE] == ICS::VALUE_DATE) {
+	          $date = $exdatetime->format('Ymd');
+	        }
+	        else {
+	          $date = $exdatetime->format('Ymd') . 'T' . $exdatetime->format('His');
+	        }
 	      }
 	      elseif ($vevent->DTSTART[ICS::VALUE] == ICS::VALUE_DATE) {
-	        $exdatetime = new \DateTime($exception->recurrenceId, new \DateTimeZone($timezone));
 	        $date = $exdatetime->format('Ymd');
 	      } 
 	      else {
-	        $exdatetime = new \DateTime($exception->recurrenceId, new \DateTimeZone($timezone));
 	        if (!isset($vevent->DTSTART)) {
 	          continue;
 	        }
-	        $date = $exdatetime->format('Ymd') . 'T' . $vevent->DTSTART->getDateTime()->format('His');
+	        $date = $exdatetime->format('Ymd') . 'T' . $exdatetime->format('His');
 	      }
 	      if ($exception->deleted && !$event->deleted) {
 	        $exdate[] = $date;
-	      } else {
+	      } else if (isset($exception->start) && isset($exception->end)) {
 	        $vexception = $vcalendar->add('VEVENT');
 	        // UID
 	        $vexception->UID = $exception->uid;
@@ -370,19 +402,19 @@ class EventToICS {
 			if (!is_null($organizer_attendees)
 					&& is_array($organizer_attendees)
 					&& count($organizer_attendees) > 0) {
-				// Add organizer
-				$params = [
-				      ICS::ROLE => ICS::ROLE_CHAIR,
-				      ICS::PARTSTAT => ICS::PARTSTAT_ACCEPTED,
-				      ICS::RSVP => 'TRUE',
-				    ];
-				if (!empty($event->organizer->name)) {
-				  $params[ICS::CN] = $event->organizer->name;
-				}
-				$vevent->add(ICS::ORGANIZER,
-				    'mailto:'.$event->organizer->email,
-				    $params
-				    );
+			  // Add organizer
+		    $params = [
+		        ICS::ROLE => ICS::ROLE_CHAIR,
+		        ICS::PARTSTAT => ICS::PARTSTAT_ACCEPTED,
+		        ICS::RSVP => 'TRUE',
+		    ];
+		    if (!empty($event->organizer->name)) {
+		      $params[ICS::CN] = $event->organizer->name;
+		    }
+		    $vevent->add(ICS::ORGANIZER,
+		        'mailto:'.$event->organizer->email,
+		        $params
+        );
 				foreach ($organizer_attendees as $attendee) {
 					// Role
 					switch ($attendee->role) {
@@ -424,8 +456,9 @@ class EventToICS {
     						ICS::ROLE => $role,
 					      ICS::RSVP => 'TRUE',
 					    ];
-					if (!empty($attendee->name)) {
-					  $params[ICS::CN] = $attendee->name;
+					$attendee_name = $attendee->name;
+					if (!empty($attendee_name)) {
+					  $params[ICS::CN] = $attendee_name;
 					}
 					// Add attendee
 					$vevent->add(ICS::ATTENDEE, 'mailto:'.$attendee->email, $params);
@@ -437,13 +470,19 @@ class EventToICS {
 			  $vevent->add(ICS::X_CALDAV_CALENDAR_ID, $calendar->id);
 			  $vevent->add(ICS::X_CALDAV_CALENDAR_OWNER, $calendar->owner);
 			  // MANTIS 4002: Ajouter le creator dans la description lors de la génération de l'ICS
-			  if ($event->owner != $calendar->owner) {
+			  if ($event->owner != $calendar->owner && !empty($event->owner) && strpos($vevent->DESCRIPTION, "[".$event->owner."]") === false) {
 			    $vevent->DESCRIPTION = "[".$event->owner."]\n\n" . $vevent->DESCRIPTION;
 			  }
 			}
 			// Sequence
 			$sequence = $event->getAttribute(ICS::SEQUENCE);
 			if (isset($sequence)) $vevent->SEQUENCE = $sequence;
+			// RECEIVED-SEQUENCE
+			$received_sequence = $event->getAttribute(ICS::X_MOZ_RECEIVED_SEQUENCE);
+			if (isset($received_sequence)) $vevent->add(ICS::X_MOZ_RECEIVED_SEQUENCE, $received_sequence);
+			// RECEIVED-DTSTAMP
+			$received_dtstamp = $event->getAttribute(ICS::X_MOZ_RECEIVED_DTSTAMP);
+			if (isset($received_dtstamp)) $vevent->add(ICS::X_MOZ_RECEIVED_DTSTAMP, $received_dtstamp);
 			// X Moz Send Invitations
 			$send_invitation = $event->getAttribute(ICS::X_MOZ_SEND_INVITATIONS);
 			if (isset($send_invitation)) $vevent->add(ICS::X_MOZ_SEND_INVITATIONS, $send_invitation);
@@ -536,7 +575,7 @@ class EventToICS {
 	  }
 
 	  // Nombre de semaines, 10080 minutes
-	  if ($alarm >= 10080) {
+	  if ($alarm >= 10080 && ($alarm % 10080) === 0) {
 	    $nb_weeks = (int)($alarm / 10080);
 	    $alarm -= $nb_weeks * 10080;
 	    $trigger .= $nb_weeks."W";
@@ -570,7 +609,7 @@ class EventToICS {
 	 * @return mixed
 	 */
 	private static function cleanUTF8String($string) {
-    return preg_replace('/[\x01\x02\x03\x04\x05\x08\x13\x14\x19\x1E\x1C\x1B]/', '', $string);
+    return preg_replace('/[\x01\x02\x03\x04\x05\x08\x0B\x0E\x11\x12\x13\x14\x19\x1A\x1E\x1C\x1B\x1D\x1F]/', '', $string);
   }
 
   /**
