@@ -490,6 +490,8 @@ class ICS {
 	 * RSVP Expectation (http://tools.ietf.org/html/rfc2445#section-4.2.17)
 	 */
 	const RSVP = 'RSVP';
+	const RSVP_TRUE = 'TRUE';
+	const RSVP_FALSE = 'FALSE';
 	/**
 	 * Sent By (http://tools.ietf.org/html/rfc2445#section-4.2.18)
 	 * "TRUE" / "FALSE"
@@ -596,6 +598,12 @@ class ICS {
 	 * Action effectuée par le Courrielleur : CREATE, MOVE, DELETE, COPY
 	 */
 	const X_CM2V3_ACTION = 'X-CM2V3-ACTION';
+	
+	// M2
+	/**
+	 * Gestion du champ X-M2-ORG-MAIL pour l'ORGANIZER
+	 */
+	const X_M2_ORG_MAIL = 'X-M2-ORG-MAIL';
 
 	// CALDAV X
 	/**

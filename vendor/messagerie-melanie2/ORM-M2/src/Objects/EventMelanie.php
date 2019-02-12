@@ -85,7 +85,7 @@ class EventMelanie extends MagicObject implements IObjectMelanie {
 		// Si les clés primaires ne sont pas définis, impossible de charger l'objet
 		if (!isset($this->primaryKeys)) return false;
 		// Test si l'objet existe, pas besoin de load
-		if (is_bool($this->isExist)) {
+		if (is_bool($this->isExist) && $this->isLoaded) {
 		  return $this->isExist;
 		}
 		// Paramètres de la requête
@@ -104,7 +104,10 @@ class EventMelanie extends MagicObject implements IObjectMelanie {
 		}
 		// Liste les calendriers de l'utilisateur
 		$this->isExist = Sql\DBMelanie::ExecuteQueryToObject(Sql\SqlCalendarRequests::getEvent, $params, $this);
-		if ($this->isExist) $this->initializeHasChanged();
+		if ($this->isExist) {
+		  $this->initializeHasChanged();
+		}
+		$this->isLoaded = true;
 		M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class."->load() isExist: ".$this->isExist);
 		return $this->isExist;
 	}
@@ -176,7 +179,7 @@ class EventMelanie extends MagicObject implements IObjectMelanie {
 				if (!isset($this->$key)) return null;
 			}
 			// Gestion de l'event_id
-			if (!isset($this->id)) $this->id = md5($this->uid . $this->calendar);
+			if (!isset($this->id)) $this->id = hash('sha256', $this->uid . $this->calendar . uniqid(), false);
 			if (!isset($this->modified)) $this->modified = time();
 
 			// Si l'objet n'existe pas, on fait un INSERT
@@ -299,14 +302,16 @@ class EventMelanie extends MagicObject implements IObjectMelanie {
 		M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class."->getList()");
 		// Mapping pour les operateurs
 		$opmapping = [];
-		// Test si les clés primaires sont bien instanciées et les ajoute en paramètres
-		foreach ($operators as $key => $operator) {
-			// Récupèration des données de mapping
-			if (isset(MappingMelanie::$Data_Mapping[$this->objectType])
-					&& isset(MappingMelanie::$Data_Mapping[$this->objectType][$key])) {
-				$key = MappingMelanie::$Data_Mapping[$this->objectType][$key][MappingMelanie::name];
-			}
-			$opmapping[$key] = $operator;
+		if (is_array($operators)) {
+  		// Test si les clés primaires sont bien instanciées et les ajoute en paramètres
+  		foreach ($operators as $key => $operator) {
+  			// Récupèration des données de mapping
+  			if (isset(MappingMelanie::$Data_Mapping[$this->objectType])
+  					&& isset(MappingMelanie::$Data_Mapping[$this->objectType][$key])) {
+  				$key = MappingMelanie::$Data_Mapping[$this->objectType][$key][MappingMelanie::name];
+  			}
+  			$opmapping[$key] = $operator;
+  		}
 		}
 		// Mapping pour les champs
 		$fieldsmapping = [];
@@ -503,11 +508,17 @@ class EventMelanie extends MagicObject implements IObjectMelanie {
 		$query = Sql\SqlCalendarRequests::getListEvents;
 		// Liste des champs
 		if (!is_array($fields) && strtolower($fields) == 'count') {
-		    // On fait un count(*)
-		    $query = Sql\SqlCalendarRequests::getCountEvents;
+	    // On fait un count(*)
+	    $query = Sql\SqlCalendarRequests::getCountEvents;
 		} elseif (count($fieldsmapping) > 0) {
+		  // Chargement de la requête
+// 		  if (is_array($fields) && !in_array('attendees', $fields) && !in_array('organizer', $fields)) {
+// 		    $query = Sql\SqlCalendarRequests::getOptiListEvents;
+// 		  }
+		  // Champs demandés
 			$query = str_replace("{fields_list}", implode(", ", $fieldsmapping), $query);
 		} else {
+		  // Tous les champs
 			$query = str_replace("{fields_list}", "k1.*", $query);
 		}
 		// Clause where
@@ -538,14 +549,6 @@ class EventMelanie extends MagicObject implements IObjectMelanie {
 			$mapKey = 'uid';
 		}
 		$params[$mapKey] = $this->uid;
-
-		if (isset(MappingMelanie::$Data_Mapping[$this->objectType])
-				&& isset(MappingMelanie::$Data_Mapping[$this->objectType]['modified'])) {
-			$mapKey = MappingMelanie::$Data_Mapping[$this->objectType]['modified'][MappingMelanie::name];
-		} else {
-			$mapKey = 'modified';
-		}
-		$params[$mapKey] = time();
 
 		// Execute
 		return Sql\DBMelanie::ExecuteQuery(Sql\SqlCalendarRequests::updateMeetingEtag, $params);

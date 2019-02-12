@@ -56,6 +56,12 @@ class SqlCalendarRequests {
 	 * @param PDO :calendar_id, :event_uid
 	 */
 	const getListEvents = "SELECT {fields_list}, k2.event_creator_id as organizer_uid, k2.event_attendees as organizer_attendees, k2.calendar_id as organizer_calendar FROM kronolith_events k1 LEFT JOIN kronolith_events k2 ON k1.event_uid = k2.event_uid AND char_length(k2.event_attendees) > 10 WHERE {where_clause};";
+	/**
+	 * @var SELECT
+	 * @param REPLACE {fields_list}
+	 * @param PDO :calendar_id, :event_uid
+	 */
+	const getOptiListEvents = "SELECT {fields_list} FROM kronolith_events k1 WHERE {where_clause};";
 
 	/**
 	 * @var SELECT
@@ -72,9 +78,9 @@ class SqlCalendarRequests {
 
 	/**
 	 * @var UPDATE
-	 * @param PDO :event_uid, :event_modified
+	 * @param PDO :event_uid
 	 */
-	const updateMeetingEtag = "UPDATE kronolith_events SET event_modified = :event_modified WHERE event_uid = :event_uid;";
+	const updateMeetingEtag = "UPDATE kronolith_events SET event_modified = event_modified + 1,  event_modified_json = event_modified_json + 1 WHERE event_uid = :event_uid;";
 
 	/**
 	 * @var INSERT

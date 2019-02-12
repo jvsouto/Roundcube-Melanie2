@@ -19,7 +19,9 @@ namespace LibMelanie\Api\Melanie2;
 
 use LibMelanie\Lib\Melanie2Object;
 use LibMelanie\Objects\CalendarMelanie;
+use LibMelanie\Objects\UserMelanie;
 use LibMelanie\Log\M2Log;
+use LibMelanie\Config\Config;
 
 /**
  * Classe calendrier pour Melanie2
@@ -34,6 +36,7 @@ use LibMelanie\Log\M2Log;
  * @property int $perm Permission associée, utiliser asRight()
  * @property string $ctag CTag du calendrier
  * @property int $synctoken SyncToken du calendrier
+ * @property-read string $caldavurl URL CalDAV pour le calendrier
  * @method bool load() Charge les données du calendrier depuis la base de données
  * @method bool exists() Non implémentée
  * @method bool save() Non implémentée
@@ -149,6 +152,7 @@ class Calendar extends Melanie2Object {
           $event->deleted = true;
           $event->modified = $modified;
           $event->exceptions = $_exceptions;
+          $event->getObjectMelanie()->setExist(true);
           $events[$event->uid . $event->calendar] = $event;
         }
       } else {
@@ -231,6 +235,7 @@ class Calendar extends Melanie2Object {
           $event->deleted = true;
           $event->modified = $modified;
           $event->exceptions = $_exceptions;
+          $event->getObjectMelanie()->setExist(true);
           $events[$event->uid . $event->calendar] = $event;
         }
       } else {
@@ -244,5 +249,22 @@ class Calendar extends Melanie2Object {
     // TODO: Test - Nettoyage mémoire
     //gc_collect_cycles();
     return $events;
+  }
+  
+  /**
+   * ***************************************************
+   * DATA MAPPING
+   */
+  /**
+   * Mapping caldavurl field
+   */
+  protected function getMapCaldavurl() {
+    M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->getMapCaldavurl()");
+    if (!isset($this->objectmelanie)) throw new \LibMelanie\Exceptions\ObjectMelanieUndefinedException();
+    $url = null;
+    if (Config::is_set(Config::CALENDAR_CALDAV_URL)) {
+      $url = str_replace(['%u', '%o', '%i'], [$this->usermelanie->uid, $this->objectmelanie->owner, $this->objectmelanie->id], Config::get(Config::CALENDAR_CALDAV_URL));
+    }
+    return $url;
   }
 }

@@ -19,7 +19,9 @@ namespace LibMelanie\Api\Melanie2;
 
 use LibMelanie\Lib\Melanie2Object;
 use LibMelanie\Objects\TaskslistMelanie;
+use LibMelanie\Objects\UserMelanie;
 use LibMelanie\Log\M2Log;
+use LibMelanie\Config\Config;
 
 /**
  * Classe liste de tâches pour Melanie2
@@ -34,6 +36,7 @@ use LibMelanie\Log\M2Log;
  * @property int $perm Permission associée, utiliser asRight()
  * @property string $ctag CTag de la liste de tâche
  * @property int $synctoken SyncToken de la liste de tâche
+ * @property-read string $caldavurl URL CalDAV pour la liste de tâches
  * @method bool load() Charge les données de la liste de tâche depuis la base de données
  * @method bool exists() Non implémentée
  * @method bool save() Non implémentée
@@ -111,5 +114,22 @@ class Taskslist extends Melanie2Object {
     // TODO: Test - Nettoyage mémoire
     //gc_collect_cycles();
     return $tasks;
+  }
+  
+  /**
+   * ***************************************************
+   * DATA MAPPING
+   */
+  /**
+   * Mapping caldavurl field
+   */
+  protected function getMapCaldavurl() {
+    M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->getMapCaldavurl()");
+    if (!isset($this->objectmelanie)) throw new \LibMelanie\Exceptions\ObjectMelanieUndefinedException();
+    $url = null;
+    if (Config::is_set(Config::TASKSLIST_CALDAV_URL)) {
+      $url = str_replace(['%u', '%o', '%i'], [$this->usermelanie->uid, $this->objectmelanie->owner, $this->objectmelanie->id], Config::get(Config::TASKSLIST_CALDAV_URL));
+    }
+    return $url;
   }
 }
