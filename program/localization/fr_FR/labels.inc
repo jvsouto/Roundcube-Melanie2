@@ -15,24 +15,21 @@
 
  For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/labels/
 */
-// MANTIS 3601: Ajouter le nom de l'application dans le titre de la page de login
-$labels['welcome']   = 'Bienvenue sur Mélanie2Web';
-$labels['productname'] = 'Mélanie2Web';
+$labels['welcome']   = 'Bienvenue à $product';
 $labels['username']  = 'Nom d\'utilisateur';
 $labels['password']  = 'Mot de passe';
 $labels['server']    = 'Serveur';
 $labels['login']     = 'Connexion';
 $labels['menu']     = 'Menu';
 $labels['logout']   = 'Déconnexion';
-$labels['mail']     = 'Mail';
+$labels['mail']     = 'Courriel';
 $labels['settings'] = 'Paramètres';
-$labels['addressbook'] = 'Contacts';
+$labels['addressbook'] = 'Carnet d\'adresses';
 $labels['inbox']  = 'Boîte de réception';
 $labels['drafts'] = 'Brouillons';
 $labels['sent']   = 'Envoyés';
 $labels['trash']  = 'Corbeille';
-/* PAMELA MANTIS 3518: Mail : Aligner certains aspects visuels sur le Courrielleur */
-$labels['junk']   = 'Indésirables';
+$labels['junk']   = 'Pourriels';
 $labels['show_real_foldernames'] = 'Montrer les noms réels des dossiers spéciaux';
 $labels['subject'] = 'Objet';
 $labels['from']    = 'De';
@@ -106,8 +103,7 @@ $labels['longdec']	= 'Décembre';
 $labels['today'] = 'Aujourd\'hui';
 $labels['refresh']          = 'Actualiser';
 $labels['checkmail']        = 'Relever les nouveaux courriels';
-// MANTIS 3699: nommage des boutons
-$labels['compose']          = 'Écrire';
+$labels['compose']          = 'Rédiger';
 $labels['writenewmessage']  = 'Créer un nouveau courriel';
 $labels['reply']            = 'Répondre';
 $labels['replytomessage']   = 'Répondre à l\'expéditeur';
@@ -133,9 +129,8 @@ $labels['mark']             = 'Marquer';
 $labels['markmessages']     = 'Marquer les courriels';
 $labels['markread']         = 'Comme lu';
 $labels['markunread']       = 'Comme non lu';
-/* PAMELA MANTIS 3518: Mail : Aligner certains aspects visuels sur le Courrielleur */
-$labels['markflagged']      = 'Comme suivi';
-$labels['markunflagged']    = 'Comme non suivi';
+$labels['markflagged']      = 'Comme signalé';
+$labels['markunflagged']    = 'Comme non signalé';
 $labels['moreactions']      = 'Plus d\'actions...';
 $labels['markallread']      = 'Tout marquer comme lu';
 $labels['folders-cur']      = 'Dossier sélectionné seulement';
@@ -157,10 +152,9 @@ $labels['none'] = 'Aucun';
 $labels['currpage'] = 'Page courante';
 $labels['isread'] = 'Lu';
 $labels['unread'] = 'Non lu';
-/* PAMELA MANTIS 3518: Mail : Aligner certains aspects visuels sur le Courrielleur */
-$labels['flagged'] = 'Suivi';
-$labels['unflagged'] = 'Non suivi';
-$labels['unanswered'] = 'Non répondu';
+$labels['flagged'] = 'Signalé';
+$labels['unflagged'] = 'Non signalé';
+$labels['unanswered'] = 'Sans réponse';
 $labels['withattachment'] = 'Avec pièce jointe';
 $labels['deleted'] = 'Supprimé';
 $labels['undeleted'] = 'Non supprimé';
@@ -178,8 +172,7 @@ $labels['autoexpand_threads'] = 'Développer les fils de courriel';
 $labels['do_expand'] = 'Tous les fils';
 $labels['expand_only_unread'] = 'seulement avec des courriels non lus';
 $labels['fromto'] = 'De/À';
-/* PAMELA MANTIS 3518: Mail : Aligner certains aspects visuels sur le Courrielleur */
-$labels['flag'] = 'Suivi';
+$labels['flag'] = 'Signaler';
 $labels['attachment'] = 'Pièce jointe';
 $labels['nonesort'] = 'Aucun';
 $labels['sentdate'] = 'Date d\'envoi';
@@ -280,8 +273,7 @@ $labels['responsename'] = 'Nom';
 $labels['responsetext'] = 'Texte de la réponse';
 $labels['attach'] = 'Joindre';
 $labels['attachments'] = 'Pièces jointes';
-// PAMELA
-$labels['upload'] = 'Charger';
+$labels['upload'] = 'Téléverser';
 $labels['uploadprogress'] = '$percent ($current de $total)';
 $labels['close']  = 'Fermer';
 $labels['messageoptions']  = 'Options de courriel..';
@@ -386,8 +378,7 @@ $labels['ok'] = 'OK';
 $labels['rename'] = 'Renommer';
 $labels['addphoto'] = 'Ajouter';
 $labels['replacephoto'] = 'Remplacer';
-// PAMELA
-$labels['uploadphoto'] = 'Charger une photo';
+$labels['uploadphoto'] = 'Téléverser une photo';
 $labels['newcontact']     = 'Créer un nouveau contact';
 $labels['deletecontact']  = 'Supprimer les contacts sélectionnés';
 $labels['composeto']      = 'Rédiger un courriel à';
@@ -576,8 +567,7 @@ $labels['plugin'] = 'Plugiciel';
 $labels['version'] = 'Version';
 $labels['source'] = 'Source';
 $labels['license'] = 'Licence';
-// PAMELA
-$labels['support'] = 'Afficher l\'aide';
+$labels['support'] = 'Obtenir du soutien';
 $labels['savedsearches'] = 'Recherches enregistrées';
 $labels['dateformatY'] = 'AAAA';
 $labels['dateformaty'] = 'AA';

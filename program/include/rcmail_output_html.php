@@ -1789,11 +1789,7 @@ EOF;
         }
 
         unset($attrib['task'], $attrib['request']);
-        // PAMELA - Gestion des boites partagées
-        if (isset($_GET['_account']))
-            $attrib['action'] = './?_account='.melanie2::get_account();
-        else
-	        $attrib['action'] = './';
+        $attrib['action'] = './';
 
         return $this->form_tag($attrib, $hidden->show() . $content);
     }

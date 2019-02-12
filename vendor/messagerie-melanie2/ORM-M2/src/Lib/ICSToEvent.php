@@ -18,10 +18,12 @@
  */
 namespace LibMelanie\Lib;
 
+use LibMelanie\Config\ConfigMelanie;
 use LibMelanie\Api\Melanie2\Exception;
 use LibMelanie\Api\Melanie2\Event;
 use LibMelanie\Api\Melanie2\User;
 use LibMelanie\Api\Melanie2\Calendar;
+use LibMelanie\Api\Melanie2\UserPrefs;
 use LibMelanie\Log\M2Log;
 
 // Utilisation de la librairie Sabre VObject pour la conversion ICS
@@ -86,12 +88,19 @@ class ICSToEvent {
    */
   public static function Convert($ics, Event $event, Calendar $calendar = null, User $user = null) {
     $vcalendar = VObject\Reader::read($ics);
+    // Gestion du timezone
+    if (isset($user)) {
+      $timezone = $user->getTimezone();
+    } else if (isset($calendar)) {
+      $timezone = $calendar->getTimezone();
+    } else {
+      $timezone = ConfigMelanie::CALENDAR_DEFAULT_TIMEZONE;
+    }
     $exceptions = [];
     foreach ($vcalendar->VEVENT as $vevent) {
       $recurrence_id = $vevent->{ICS::RECURRENCE_ID};
       if (isset($recurrence_id)) {
         $object = new Exception($event, $user, $calendar);
-        $object->recurrence_id = $recurrence_id;
       } else {
         $object = $event;
       }
@@ -103,12 +112,7 @@ class ICSToEvent {
       // Owner
       if (isset($recurrence_id) && (!isset($object->owner) || empty($object->owner))) {
         M2Log::Log(M2Log::LEVEL_DEBUG, "ICSToEvent::Convert() SetOwner = " . isset($user) && isset($user->uid) ? $user->uid : $calendar->owner);
-        if (isset($event) && isset($event->owner)) {
-          $object->owner = $event->owner;
-        }
-        else {
-          $object->owner = isset($user) && isset($user->uid) ? $user->uid : $calendar->owner;
-        }        
+        $object->owner = isset($user) && isset($user->uid) ? $user->uid : $calendar->owner;
       }
       // DTSTART & DTEND
       if (isset($vevent->DTSTART) && isset($vevent->DTEND)) {
@@ -122,17 +126,34 @@ class ICSToEvent {
         $endDate->add($duration);
       }
       if (isset($startDate)) {
-        $object->all_day = isset($vevent->DTSTART->parameters[ICS::VALUE]) && $vevent->DTSTART->parameters[ICS::VALUE] == ICS::VALUE_DATE;
+        $allDay = isset($vevent->DTSTART->parameters[ICS::VALUE]) && $vevent->DTSTART->parameters[ICS::VALUE] == ICS::VALUE_DATE;
+        // MANTIS 0004694: Forcer le Timezone quand il est différent de celui enregistré
+        if ($startDate->getTimezone()->getName() != 'UTC' && !$allDay && $startDate->getTimezone()->getName() != $timezone && isset($user)) {
+          $userPref = new UserPrefs($user);
+          $userPref->name = ConfigMelanie::TZ_PREF_NAME;
+          $userPref->scope = ConfigMelanie::PREF_SCOPE;
+          $userPref->value = $startDate->getTimezone()->getName();
+          $ret = $userPref->save();
+          if (!is_null($ret)) {
+            $timezone = $startDate->getTimezone()->getName();
+          }
+        }
+        // Gestion du Timezone GMT
+        if ($startDate->getTimezone()->getName() == 'UTC' && !$allDay) {
+          $startDate->setTimezone(new \DateTimeZone($timezone));
+        }
+        if ($endDate->getTimezone()->getName() == 'UTC' && !$allDay) {
+          $endDate->setTimezone(new \DateTimeZone($timezone));
+        }
         $object->start = $startDate->format(self::DB_DATE_FORMAT);
         $object->end = $endDate->format(self::DB_DATE_FORMAT);
-        $object->timezone = $startDate->getTimezone()->getName();
       }      
       
       // Recurrence ID
       if (isset($recurrence_id)) {
         $date = $recurrence_id->getDateTime();
-        if ($date->getTimezone()->getName() != $object->timezone) {
-          $date->setTimezone(new \DateTimeZone($object->timezone));
+        if ($date->getTimezone()->getName() == 'UTC') {
+          $date->setTimezone(new \DateTimeZone($timezone));
         }        
         $object->recurrenceId = $date->format(self::SHORT_DB_DATE_FORMAT);
         $object->setAttribute(ICS::RECURRENCE_ID, $date->format(self::DB_DATE_FORMAT));
@@ -172,12 +193,8 @@ class ICSToEvent {
         // CREATED
         if (isset($vevent->{ICS::CREATED})) {
           $object->setAttribute(ICS::CREATED, $vevent->{ICS::CREATED}->getValue());
-          $object->created = strtotime($vevent->CREATED->getValue());
         } else {
           $object->deleteAttribute(ICS::CREATED);
-          if (!isset($object->created)) {
-            $object->created = time();
-          }
         }
         
         $object->deleted = true;
@@ -246,7 +263,6 @@ class ICSToEvent {
       // SEQUENCE
       if (isset($vevent->SEQUENCE)) {
         $object->setAttribute(ICS::SEQUENCE, $vevent->SEQUENCE->getValue());
-        $object->sequence = $vevent->SEQUENCE->getValue();
       } else {
         $object->deleteAttribute(ICS::SEQUENCE);
       }
@@ -265,17 +281,15 @@ class ICSToEvent {
       // X Moz Send Invitations
       if (isset($vevent->{ICS::X_MOZ_SEND_INVITATIONS})) {
         $object->setAttribute(ICS::X_MOZ_SEND_INVITATIONS, $vevent->{ICS::X_MOZ_SEND_INVITATIONS}->getValue());
-      } 
-//       else {
-//         $object->deleteAttribute(ICS::X_MOZ_SEND_INVITATIONS);
-//       }
+      } else {
+        $object->deleteAttribute(ICS::X_MOZ_SEND_INVITATIONS);
+      }
       // X Moz Send Invitations Undisclosed
       if (isset($vevent->{ICS::X_MOZ_SEND_INVITATIONS_UNDISCLOSED})) {
         $object->setAttribute(ICS::X_MOZ_SEND_INVITATIONS_UNDISCLOSED, $vevent->{ICS::X_MOZ_SEND_INVITATIONS_UNDISCLOSED}->getValue());
-      } 
-//       else {
-//         $object->deleteAttribute(ICS::X_MOZ_SEND_INVITATIONS_UNDISCLOSED);
-//       }
+      } else {
+        $object->deleteAttribute(ICS::X_MOZ_SEND_INVITATIONS_UNDISCLOSED);
+      }
       // X MOZ GENERATION
       if (isset($vevent->{ICS::X_MOZ_GENERATION})) {
         $object->setAttribute(ICS::X_MOZ_GENERATION, $vevent->{ICS::X_MOZ_GENERATION}->getValue());
@@ -284,7 +298,7 @@ class ICSToEvent {
       }
       // TRANSP
       if (isset($vevent->TRANSP)) {
-        $object->transparency = $vevent->TRANSP->getValue();
+        $object->setAttribute(ICS::TRANSP, $vevent->TRANSP->getValue());
       } else {
         $object->deleteAttribute(ICS::TRANSP);
       }
@@ -301,7 +315,6 @@ class ICSToEvent {
       // CREATED
       if (isset($vevent->CREATED)) {
         $object->setAttribute(ICS::CREATED, $vevent->CREATED->getValue());
-        $object->created = strtotime($vevent->CREATED->getValue());
       } else {
         $object->deleteAttribute(ICS::CREATED);
       }      
@@ -339,35 +352,12 @@ class ICSToEvent {
         $object->status = Event::STATUS_NONE;
       // ATTENDEE
       if (isset($vevent->ATTENDEE)) {
-        // 0005064: [ICS] si l'organisateur existe, ne pas le modifier depuis l'ICS
-        $organizer = $object->organizer;
-        $organizer_email = isset($organizer) ? $organizer->email : null;
-        if (isset($vevent->ORGANIZER) && !isset($organizer_email)) {
-          $parameters = $vevent->ORGANIZER->parameters;
-          if (isset($parameters[ICS::CN])) {
-            $organizer->name = $parameters[ICS::CN]->getValue();
+        if (isset($vevent->ORGANIZER)) {
+          $object->organizer->email = str_replace('mailto:', '', strtolower($vevent->ORGANIZER->getValue()));
+          $paramters = $vevent->ORGANIZER->parameters;
+          if (isset($paramters[ICS::CN])) {
+            $object->organizer->name = $paramters[ICS::CN]->getValue();
           }
-          if (isset($parameters[ICS::RSVP])) {
-            $organizer->rsvp = $parameters[ICS::RSVP]->getValue();
-          }
-          if (isset($parameters[ICS::ROLE])) {
-            $organizer->role = $parameters[ICS::ROLE]->getValue();
-          }
-          if (isset($parameters[ICS::PARTSTAT])) {
-            $organizer->partstat = $parameters[ICS::PARTSTAT]->getValue();
-          }
-          if (isset($parameters[ICS::SENT_BY])) {
-            $organizer->email = str_replace('mailto:', '', strtolower($parameters[ICS::SENT_BY]->getValue()));
-            // 0005096: Le champ X-M2-ORG-MAIL n'est pas alimenté pour une modification d'événement
-            $organizer->owner_email = str_replace('mailto:', '', strtolower($vevent->ORGANIZER->getValue()));
-          }
-          else {
-            $organizer->email = str_replace('mailto:', '', strtolower($vevent->ORGANIZER->getValue()));
-          }
-          if (isset($parameters[ICS::X_M2_ORG_MAIL])) {
-            $organizer->owner_email = str_replace('mailto:', '', strtolower($parameters[ICS::X_M2_ORG_MAIL]->getValue()));
-          }
-          $object->organizer = $organizer;
         }
         $_attendees = [];
         foreach ($vevent->ATTENDEE as $prop) {
@@ -375,22 +365,13 @@ class ICSToEvent {
           $_attendee = new \LibMelanie\Api\Melanie2\Attendee($object);
           // Email de l'attendee
           $_attendee->email = str_replace('mailto:', '', strtolower($prop->getValue()));
-          // Rechercher la réponse du participant courant
-          $_old_response = null;
-          foreach ($object->attendees as $_old_attendee) {
-            if (strtolower($_old_attendee->email) == strtolower($_attendee->email)) {
-              $_old_response = $_old_attendee->response;
-            }
-          }
           // Ne pas conserver de participant avec la même adresse mail que l'organisateur
-          // Test de non suppression du participant pour voir
-          //if ($object->organizer->email == $_attendee->email) {
-          //  continue;
-          //}
-          // Gestion du CNAME
-          if (isset($attendee[ICS::CN])) {
-            $_attendee->name = $attendee[ICS::CN]->getValue();
+          if ($object->organizer->email == $_attendee->email) {
+            continue;
           }
+          // Gestion du CNAME
+          if (isset($attendee[ICS::CN]))
+            $_attendee->name = $attendee[ICS::CN]->getValue();
           // Gestion du PARTSTAT
           // MANTIS 4016: Gestion des COPY/MOVE
           if (isset($attendee[ICS::PARTSTAT]) && !$copy) {
@@ -402,13 +383,7 @@ class ICSToEvent {
                 $_attendee->response = \LibMelanie\Api\Melanie2\Attendee::RESPONSE_IN_PROCESS;
                 break;
               case ICS::PARTSTAT_NEEDS_ACTION :
-                if (isset($_old_response) 
-                    && $_old_response != \LibMelanie\Api\Melanie2\Attendee::RESPONSE_NEED_ACTION) {
-                  $_attendee->response = $_old_response;
-                }
-                else {
-                  $_attendee->response = \LibMelanie\Api\Melanie2\Attendee::RESPONSE_NEED_ACTION;
-                }
+                $_attendee->response = \LibMelanie\Api\Melanie2\Attendee::RESPONSE_NEED_ACTION;
                 break;
               case ICS::PARTSTAT_TENTATIVE :
                 $_attendee->response = \LibMelanie\Api\Melanie2\Attendee::RESPONSE_TENTATIVE;
@@ -420,9 +395,8 @@ class ICSToEvent {
                 $_attendee->response = \LibMelanie\Api\Melanie2\Attendee::RESPONSE_ACCEPTED;
                 break;
             }
-          } else {
+          } else
             $_attendee->response = \LibMelanie\Api\Melanie2\Attendee::RESPONSE_NEED_ACTION;
-          }            
           // Gestion du ROLE
           if (isset($attendee[ICS::ROLE])) {
             switch ($attendee[ICS::ROLE]->getValue()) {
@@ -431,7 +405,6 @@ class ICSToEvent {
                 break;
               case ICS::ROLE_NON_PARTICIPANT :
                 $_attendee->role = \LibMelanie\Api\Melanie2\Attendee::ROLE_NON_PARTICIPANT;
-                $_attendee->response = \LibMelanie\Api\Melanie2\Attendee::RESPONSE_ACCEPTED;
                 break;
               case ICS::ROLE_OPT_PARTICIPANT :
                 $_attendee->role = \LibMelanie\Api\Melanie2\Attendee::ROLE_OPT_PARTICIPANT;
@@ -441,17 +414,12 @@ class ICSToEvent {
                 $_attendee->role = \LibMelanie\Api\Melanie2\Attendee::ROLE_REQ_PARTICIPANT;
                 break;
             }
-          } else {
+          } else
             $_attendee->role = \LibMelanie\Api\Melanie2\Attendee::ROLE_REQ_PARTICIPANT;
-          }            
           // Ajout de l'attendee
           $_attendees[] = $_attendee;
         }
         $object->attendees = $_attendees;
-      }
-      else {
-        // MANTIS 0005086: Impossible de vider la liste des participants
-        $object->attendees = [];
       }
       // ATTACH
       if (isset($vevent->ATTACH)) {
@@ -557,7 +525,7 @@ class ICSToEvent {
           foreach ($vevent->EXDATE as $exdate) {
             $exception = new Exception($event, $user, $calendar);
             $date = $exdate->getDateTime();
-            $date->setTimezone(new \DateTimeZone($object->timezone));
+            $date->setTimezone(new \DateTimeZone($timezone));
             $exception->recurrenceId = $date->format(self::SHORT_DB_DATE_FORMAT);
             $exception->deleted = true;
             $exception->uid = $event->uid;

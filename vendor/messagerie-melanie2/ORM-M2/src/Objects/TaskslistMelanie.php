@@ -24,10 +24,10 @@ namespace LibMelanie\Objects;
 use LibMelanie\Lib\MagicObject;
 use LibMelanie\Interfaces\IObjectMelanie;
 use LibMelanie\Sql;
+use LibMelanie\Config\ConfigMelanie;
 use LibMelanie\Config\ConfigSQL;
 use LibMelanie\Config\MappingMelanie;
 use LibMelanie\Log\M2Log;
-use LibMelanie\Config\DefaultConfig;
 
 /**
  * Traitement des listes de tâches Melanie2
@@ -75,7 +75,7 @@ class TaskslistMelanie extends MagicObject implements IObjectMelanie {
 		if (!isset($this->id)) return false;
 		if (!isset($this->user_uid)) return false;
 		// Test si l'objet existe, pas besoin de load
-		if (is_bool($this->isExist) && $this->isLoaded) {
+		if (is_bool($this->isExist)) {
 		  return $this->isExist;
 		}
 		$query = Sql\SqlMelanieRequests::listObjectsByUid;
@@ -90,12 +90,12 @@ class TaskslistMelanie extends MagicObject implements IObjectMelanie {
 
 		// Params
 		$params = [
-		    "group_uid" => DefaultConfig::TASKSLIST_GROUP_UID,
+				"group_uid" => ConfigMelanie::TASKSLIST_GROUP_UID,
 				"user_uid" => $this->user_uid,
 				"datatree_name" => $this->id,
-		    "attribute_name" => DefaultConfig::ATTRIBUTE_NAME_NAME,
-		    "attribute_perm" => DefaultConfig::ATTRIBUTE_NAME_PERM,
-		    "attribute_permfg" => DefaultConfig::ATTRIBUTE_NAME_PERMGROUP,
+				"attribute_name" => ConfigMelanie::ATTRIBUTE_NAME_NAME,
+				"attribute_perm" => ConfigMelanie::ATTRIBUTE_NAME_PERM,
+				"attribute_permfg" => ConfigMelanie::ATTRIBUTE_NAME_PERMGROUP,
 		];
 
 		// Liste les calendriers de l'utilisateur
@@ -104,8 +104,6 @@ class TaskslistMelanie extends MagicObject implements IObjectMelanie {
 			//$this->getCTag();
 			$this->initializeHasChanged();
 		}
-		// Les données sont chargées
-		$this->isLoaded = true;
 		return $this->isExist;
 	}
 
@@ -150,7 +148,7 @@ class TaskslistMelanie extends MagicObject implements IObjectMelanie {
 					'datatree_name' => $datatree_name,
 					'datatree_ctag' => md5($datatree_name),
 					'user_uid' => $this->user_uid,
-			    'group_uid' => isset($this->group) ?  $this->group : DefaultConfig::TASKSLIST_GROUP_UID,
+					'group_uid' => isset($this->group) ?  $this->group : ConfigMelanie::TASKSLIST_GROUP_UID,
 			];
 			if (Sql\DBMelanie::ExecuteQuery($query, $params)) {
 				$this->isExist = true;
@@ -158,7 +156,7 @@ class TaskslistMelanie extends MagicObject implements IObjectMelanie {
 				$query = Sql\SqlObjectPropertyRequests::insertProperty;
 				$params = [
 						'datatree_id' => $datatree_id,
-				    'attribute_name' => DefaultConfig::ATTRIBUTE_NAME_NAME,
+						'attribute_name' => ConfigMelanie::ATTRIBUTE_NAME_NAME,
 						'attribute_key' => '',
 						'attribute_value' => isset($this->name) ?  $this->name : $datatree_name,
 				];
@@ -170,7 +168,7 @@ class TaskslistMelanie extends MagicObject implements IObjectMelanie {
 				$query = Sql\SqlObjectPropertyRequests::insertProperty;
 				$params = [
 						'datatree_id' => $datatree_id,
-				    'attribute_name' => DefaultConfig::ATTRIBUTE_OWNER,
+						'attribute_name' => ConfigMelanie::ATTRIBUTE_OWNER,
 						'attribute_key' => '',
 						'attribute_value' => $this->user_uid,
 				];
@@ -182,7 +180,7 @@ class TaskslistMelanie extends MagicObject implements IObjectMelanie {
 				$query = Sql\SqlObjectPropertyRequests::insertProperty;
 				$params = [
 						'datatree_id' => $datatree_id,
-				    'attribute_name' => DefaultConfig::ATTRIBUTE_NAME_PERM,
+						'attribute_name' => ConfigMelanie::ATTRIBUTE_NAME_PERM,
 						'attribute_key' => $this->user_uid,
 						'attribute_value' => '30',
 				];
@@ -237,7 +235,7 @@ class TaskslistMelanie extends MagicObject implements IObjectMelanie {
 //  			$query = Sql\SqlMelanieRequests::deleteObject4;
 //  			// Params
 //  			$params = [
-//  					"object_uid" => DefaultConfig::TASKSLIST_PREF_SCOPE.":".$this->id.":%",
+//  					"object_uid" => ConfigMelanie::TASKSLIST_PREF_SCOPE.":".$this->id.":%",
 //  			];
 //  			// Supprimer l'objet
 //  			$ok &= Sql\DBMelanie::ExecuteQuery($query, $params);
@@ -335,12 +333,10 @@ class TaskslistMelanie extends MagicObject implements IObjectMelanie {
   /**
 	 * Recupère le timezone par défaut pour le
 	 * need: $this->user_uid
-	 * 
-	 * @deprecated
 	 */
 	function getTimezone() {
 		M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class."->getTimezone()");
-		if (!isset($this->user_uid)) return DefaultConfig::CALENDAR_DEFAULT_TIMEZONE;
+		if (!isset($this->user_uid)) return ConfigMelanie::CALENDAR_DEFAULT_TIMEZONE;
 
 		if (!isset($this->timezone)) {
 			// Replace name
@@ -349,8 +345,8 @@ class TaskslistMelanie extends MagicObject implements IObjectMelanie {
 			// Params
 			$params = [
 					"user_uid" => $this->user_uid,
-			    "pref_scope" => DefaultConfig::PREF_SCOPE,
-			    "pref_name" => DefaultConfig::TZ_PREF_NAME
+					"pref_scope" => ConfigMelanie::PREF_SCOPE,
+					"pref_name" => ConfigMelanie::TZ_PREF_NAME
 			];
 
 			// Récupération du timezone
@@ -359,7 +355,7 @@ class TaskslistMelanie extends MagicObject implements IObjectMelanie {
 			try {
 				$tz = new \DateTimeZone($this->timezone);
 			} catch (\Exception $ex) {
-			  $this->timezone = DefaultConfig::CALENDAR_DEFAULT_TIMEZONE;
+				$this->timezone = ConfigMelanie::CALENDAR_DEFAULT_TIMEZONE;
 			}
 			M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class."->getTimezone() this->timezone: " . $this->timezone);
 		}
@@ -379,7 +375,7 @@ class TaskslistMelanie extends MagicObject implements IObjectMelanie {
 	    $params = [
 	        "datatree_id" => $this->object_id,
 	        "attribute_value" => $this->name,
-	        "attribute_name" => DefaultConfig::ATTRIBUTE_NAME_NAME,
+	        "attribute_name" => ConfigMelanie::ATTRIBUTE_NAME_NAME,
 	    ];
 	    Sql\DBMelanie::ExecuteQuery($query, $params);
 	  }
@@ -392,6 +388,6 @@ class TaskslistMelanie extends MagicObject implements IObjectMelanie {
 	 */
 	function asRight($action) {
 		M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class."->asRight($action)");
-		return (DefaultConfig::$PERMS[$action] & $this->perm_taskslist) === DefaultConfig::$PERMS[$action];
+		return (ConfigMelanie::$PERMS[$action] & $this->perm_taskslist) === ConfigMelanie::$PERMS[$action];
 	}
 }

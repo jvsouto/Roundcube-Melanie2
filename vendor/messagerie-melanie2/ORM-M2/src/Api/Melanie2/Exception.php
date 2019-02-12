@@ -19,9 +19,9 @@ namespace LibMelanie\Api\Melanie2;
 
 use LibMelanie\Objects\EventMelanie;
 use LibMelanie\Objects\HistoryMelanie;
+use LibMelanie\Config\ConfigMelanie;
 use LibMelanie\Exceptions;
 use LibMelanie\Log\M2Log;
-use LibMelanie\Config\Config;
 
 /**
  * Classe exception pour Melanie2,
@@ -52,7 +52,6 @@ use LibMelanie\Config\Config;
  * @property Recurrence $recurrence Inaccessible depuis une exception
  * @property bool $deleted Défini si l'exception est un évènement ou juste une suppression
  * @property string $recurrenceId Défini la date de l'exception pour l'occurrence
- * @property string $recurrence_id Défini la date de l'exception pour l'occurrence (nouvelle version)
  * @property-read string $realuid UID réellement stocké dans la base de données (utilisé pour les exceptions) (Lecture seule)
  * @method bool load() Chargement l'évènement, en fonction du calendar et de l'uid
  * @method bool exists() Test si l'évènement existe, en fonction du calendar et de l'uid
@@ -196,8 +195,6 @@ class Exception extends Event {
     if (!isset($this->owner)) {
       $this->owner = $this->usermelanie->uid;
     }
-    // Positionnement du realuid
-    $this->objectmelanie->realuid = $this->tmpuid;
     // Sauvegarde l'objet
     $insert = $this->objectmelanie->save();
     if (!is_null($insert)) {
@@ -205,10 +202,10 @@ class Exception extends Event {
       $this->saveAttributes();
       // Gestion de l'historique
       $history = new HistoryMelanie();
-      $history->uid = Config::get(Config::CALENDAR_PREF_SCOPE) . ":" . $this->calendar . ":" . $this->realuid;
-      $history->action = $insert ? Config::get(Config::HISTORY_ADD) : Config::get(Config::HISTORY_MODIFY);
+      $history->uid = ConfigMelanie::CALENDAR_PREF_SCOPE . ":" . $this->calendar . ":" . $this->realuid;
+      $history->action = $insert ? ConfigMelanie::HISTORY_ADD : ConfigMelanie::HISTORY_MODIFY;
       $history->timestamp = time();
-      $history->description = "LibM2/" . Config::get(Config::APP_NAME);
+      $history->description = "LibM2/" . ConfigMelanie::APP_NAME;
       $history->who = isset($this->usermelanie) ? $this->usermelanie->uid : $this->calendar;
       // Enregistrement dans la base
       if (is_null($insert))
@@ -318,7 +315,6 @@ class Exception extends Event {
       throw new Exceptions\ObjectMelanieUndefinedException();
     $recId = new \DateTime($this->recurrenceId);
     $this->objectmelanie->uid = $uid . '-' . $recId->format(self::FORMAT_ID) . self::RECURRENCE_ID;
-    $this->tmpuid = $uid;
   }
   /**
    * Mapping uid field
@@ -336,16 +332,12 @@ class Exception extends Event {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->getMapOrganizer()");
     if (!isset($this->organizer)) {
       if (isset($this->eventParent->organizer) && !empty($this->eventParent->organizer->uid)) {
-        $this->organizer = clone $this->eventParent->organizer;
-        $this->organizer->setEvent($this);
+        $this->organizer = $this->eventParent->organizer;
       }
       else {
         $this->organizer = new Organizer($this);
-        if (isset($this->eventParent)) {
-          // Ajouter l'organisateur sur l'événement parent pour les occurrences suivantes
-          $this->eventParent->organizer = clone $this->organizer;
-          $this->eventParent->organizer->setEvent($this->eventParent);
-        }        
+        // Ajouter l'organisateur sur l'événement parent pour les occurrences suivantes
+        $this->eventParent->organizer = $this->organizer;
       }
     }      
       

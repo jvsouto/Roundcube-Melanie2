@@ -6,8 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Sabre\\VObject\\' => array($vendorDir . '/sabre/vobject/lib'),
-    'LibMelanie\\' => array($vendorDir . '/messagerie-melanie2/ORM-M2/src'),
     'Endroid\\QrCode\\' => array($vendorDir . '/endroid/qr-code/src'),
     'Composer\\Semver\\' => array($vendorDir . '/composer/semver/src'),
 );

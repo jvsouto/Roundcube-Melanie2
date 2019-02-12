@@ -33,8 +33,11 @@ class rcube_sieve_engine
     protected $script  = array();
     protected $exts    = array();
     protected $active  = array();
-    // PAMELA Make managesieve default headers configurable #5490
-    protected $headers = array();
+    protected $headers = array(
+        'subject' => 'Subject',
+        'from'    => 'From',
+        'to'      => 'To',
+    );
     protected $addr_headers = array(
         // Required
         "from", "to", "cc", "bcc", "sender", "resent-from", "resent-to",
@@ -72,12 +75,6 @@ class rcube_sieve_engine
     {
         $this->rc     = rcube::get_instance();
         $this->plugin = $plugin;
-        // PAMELA Make managesieve default headers configurable #5490
-        $this->headers = $this->rc->config->get('managesieve_default_headers', array(
-                'subject' => 'Subject',
-                'from'    => 'From',
-                'to'      => 'To',
-        ));
     }
 
     /**
@@ -1248,16 +1245,8 @@ class rcube_sieve_engine
             if ($list) {
                 foreach ($list as $idx => $set) {
                     $scripts['S'.$idx] = $set;
-                    // PAMELA - Modifier le nom des jeux de filtres par défaut
-                    $nameset = $set;
-                    if ($nameset == 'managesieve') {
-                      $nameset = $this->rc->gettext('managesieve.managesieve_filters');
-                    }
-                    elseif ($nameset == 'old_ingo') {
-                      $nameset = $this->rc->gettext('managesieve.ingo_filters');
-                    }
                     $result[] = array(
-                        'name' => $nameset,
+                        'name' => $set,
                         'id' => 'S'.$idx,
                         'class' => !in_array($set, $this->active) ? 'disabled' : '',
                     );
@@ -1275,17 +1264,8 @@ class rcube_sieve_engine
                 'onchange' => $this->rc->task != 'mail' ? 'rcmail.managesieve_set()' : ''));
 
             if ($list) {
-                foreach ($list as $set) {
-                    // PAMELA - Modifier le nom des jeux de filtres par défaut
-                    $nameset = $set;
-                    if ($nameset == 'managesieve') {
-                      $nameset = $this->rc->gettext('managesieve.managesieve_filters');
-                    }
-                    elseif ($nameset == 'old_ingo') {
-                      $nameset = $this->rc->gettext('managesieve.ingo_filters');
-                    }
-                    $select->add($nameset, $set);
-                }
+                foreach ($list as $set)
+                    $select->add($set, $set);
             }
 
             $out = $select->show($this->sieve->current);
@@ -1348,9 +1328,7 @@ class rcube_sieve_engine
         if (!$attrib['id'])
             $attrib['id'] = 'rcmfiltersetform';
 
-        // PAMELA - MANTIS 3662: La création d'un groupe de regle sur une balp fait le groupe sur la bali
-        //$out = '<form name="filtersetform" action="./" method="post" enctype="multipart/form-data">'."\n";
-        $out = '<form name="filtersetform" action="#" method="post" enctype="multipart/form-data">'."\n";
+        $out = '<form name="filtersetform" action="./" method="post" enctype="multipart/form-data">'."\n";
 
         $hiddenfields = new html_hiddenfield(array('name' => '_task', 'value' => $this->rc->task));
         $hiddenfields->add(array('name' => '_action', 'value' => 'plugin.managesieve-save'));
@@ -1391,15 +1369,7 @@ class rcube_sieve_engine
                 $copy = $_SESSION['managesieve_current'];
 
             foreach ($list as $set) {
-                // PAMELA - Modifier le nom des jeux de filtres par défaut
-                $nameset = $set;
-                if ($nameset == 'managesieve') {
-                  $nameset = $this->rc->gettext('managesieve.managesieve_filters');
-                }
-                elseif ($nameset == 'old_ingo') {
-                  $nameset = $this->rc->gettext('managesieve.ingo_filters');
-                }
-                $select->add($nameset, $set);
+                $select->add($set, $set);
             }
 
             $out .= '<br>';
@@ -1456,9 +1426,7 @@ class rcube_sieve_engine
         $hiddenfields->add(array('name' => '_framed', 'value' => ($_POST['_framed'] || $_GET['_framed'] ? 1 : 0)));
         $hiddenfields->add(array('name' => '_fid', 'value' => $fid));
 
-        // PAMELA - MANTIS 3662: La création d'un groupe de regle sur une balp fait le groupe sur la bali
-        //$out = '<form name="filterform" action="./" method="post">'."\n";
-        $out = '<form name="filterform" action="#" method="post">'."\n";
+        $out = '<form name="filterform" action="./" method="post">'."\n";
         $out .= $hiddenfields->show();
 
         // 'any' flag
@@ -2532,55 +2500,6 @@ class rcube_sieve_engine
             $exceptions = $this->rc->config->get('managesieve_filename_exceptions');
             if (!empty($exceptions)) {
                 $this->list = array_diff($this->list, (array)$exceptions);
-            }
-
-            // PAMELA
-            // MANTIS 3617: La reprise des regles Sieve Ingo ne permet pas les changements
-            // Recherche les regles ingo pour les reimporter dans le script courant
-            foreach ((array)$this->list as $idx_script => $name) {
-              if ($name == 'ingo') {
-                $txt = $this->sieve->get_script($name);
-                // parse
-                $script = new rcube_sieve_script($txt, $this->sieve->get_extensions());
-
-                // fix/convert to Roundcube format
-                if (!empty($script->content)) {
-                  // replace all elsif with if+stop, we support only ifs
-                  foreach ($script->content as $idx => $rule) {
-                    if (empty($rule['type']) || !preg_match('/^(if|elsif|else)$/', $rule['type'])) {
-                      continue;
-                    }
-
-                    $script->content[$idx]['type'] = 'if';
-
-                    // 'stop' not found?
-                    foreach ($rule['actions'] as $action) {
-                      if (preg_match('/^(stop|vacation)$/', $action['type'])) {
-                        continue 2;
-                      }
-                    }
-                    if (!empty($script->content[$idx+1]) && $script->content[$idx+1]['type'] != 'if') {
-                      $script->content[$idx]['actions'][] = array('type' => 'stop');
-                    }
-                  }
-                }
-
-                // Récupération du script par défaut
-                $script_name = $this->rc->config->get('managesieve_script_name');
-                if (in_array($script_name, $this->list)) {
-                  $script_name = 'old_ingo';
-                }
-                $txt = $script->as_text();
-                // Enregistrement du script sur le serveur
-                if ($this->sieve->save_script($script_name, $txt)) {
-                  $this->activate_script($script_name);
-                  $this->sieve->remove($name);
-                  unset($this->list[$idx_script]);
-                  if (!in_array($script_name, $this->list)) {
-                    $this->list[] = $script_name;
-                  }
-                }
-              }
             }
         }
 

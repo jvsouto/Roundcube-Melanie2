@@ -958,9 +958,7 @@ function rcmail_get_cids($filter = null, $request_type = rcube_utils::INPUT_GPC)
         // extract source ID from contact ID (it's there in search mode)
         // see #1488959 and #1488862 for reference
         if (!$got_source) {
-            // MANTIS 0004209: Affichage d'un résultat d'une recherche contenant un '-'
-            //if ($sep = strrpos($id, '-')) {
-            if ($sep = strpos($id, '-')) {
+            if ($sep = strrpos($id, '-')) {
                 $contact_id = substr($id, 0, $sep);
                 $source_id  = (string) substr($id, $sep+1);
                 if (strlen($source_id)) {

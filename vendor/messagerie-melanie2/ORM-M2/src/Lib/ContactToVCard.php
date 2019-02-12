@@ -22,6 +22,7 @@
  */
 namespace LibMelanie\Lib;
 
+use LibMelanie\Config\ConfigMelanie;
 use LibMelanie\Api\Melanie2\User;
 use LibMelanie\Api\Melanie2\Contact;
 use LibMelanie\Api\Melanie2\Addressbook;

@@ -824,10 +824,9 @@ function smart_field_init(field)
 
 function smart_field_row(value, name, idx, size)
 {
-  // PAMELA, ajouter un + pour créer de nouvelles lignes
   // build row element content
   var input, content = '<span class="listelement">'
-      + '<span class="reset"></span><input type="text"><span class="add"></span></span>',
+      + '<span class="reset"></span><input type="text"></span>',
     elem = $(content),
     attrs = {value: value, name: name + '[]'};
 
@@ -871,11 +870,6 @@ function smart_field_row(value, name, idx, size)
       span.remove();
     else
       $('input', span).val('').focus();
-  });
-  
-  // PAMELA add element event
-  $('span[class="add"]', elem).click(function() {
-    $(this.parentNode).parent().append(smart_field_row("", $(this.parentNode).find('input').attr('name').replace('[]', ''), null, $(this.parentNode).find('input').attr('size')));
   });
 
   return elem;
