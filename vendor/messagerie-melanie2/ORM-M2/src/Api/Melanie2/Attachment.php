@@ -17,10 +17,10 @@
  */
 namespace LibMelanie\Api\Melanie2;
 
-use LibMelanie\Config\ConfigMelanie;
 use LibMelanie\Objects\AttachmentMelanie;
 use LibMelanie\Lib\Melanie2Object;
 use LibMelanie\Log\M2Log;
+use LibMelanie\Config\Config;
 
 /**
  * Classe pièces jointes pour Melanie2,
@@ -88,9 +88,9 @@ class Attachment extends Melanie2Object {
   public function getDownloadURL() {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->getDownloadURL()");
     if ($this->type == self::TYPE_BINARY) {
-      $url = ConfigMelanie::ATTACHMENT_DOWNLOAD_URL;
+      $url = Config::get(Config::ATTACHMENT_DOWNLOAD_URL);
       $url = str_replace('%f', urlencode($this->name), $url);
-      $url = str_replace('%p', urlencode(substr($this->path, strlen(ConfigMelanie::DEFAULT_ATTACHMENTS_FOLDER) + 1)), $url);
+      $url = str_replace('%p', urlencode(substr($this->path, strlen(Config::get(Config::DEFAULT_ATTACHMENTS_FOLDER)) + 1)), $url);
       return $url;
     } else {
       return $this->data;
@@ -110,7 +110,7 @@ class Attachment extends Melanie2Object {
   function save() {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->save()");
     if (!isset($this->objectmelanie))
-      throw new Exceptions\ObjectMelanieUndefinedException();
+      throw new \LibMelanie\Exceptions\ObjectMelanieUndefinedException();
     
     // Si c'est une pièce jointe de type URL l'enregistrement est différent
     if ($this->type === self::TYPE_URL)
@@ -155,7 +155,7 @@ class Attachment extends Melanie2Object {
   function delete() {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->delete()");
     if (!isset($this->objectmelanie))
-      throw new Exceptions\ObjectMelanieUndefinedException();
+      throw new \LibMelanie\Exceptions\ObjectMelanieUndefinedException();
     // Si c'est une pièce jointe de type URL la suppression est différente
     if ($this->type === self::TYPE_URL)
       return null;
@@ -174,7 +174,7 @@ class Attachment extends Melanie2Object {
   function load() {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->load()");
     if (!isset($this->objectmelanie))
-      throw new Exceptions\ObjectMelanieUndefinedException();
+      throw new \LibMelanie\Exceptions\ObjectMelanieUndefinedException();
     // Si c'est une pièce jointe de type URL l'enregistrement est différent
     if ($this->type === self::TYPE_URL)
       return null;
@@ -240,7 +240,7 @@ class Attachment extends Melanie2Object {
   protected function setMapPath($path) {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->setMapPath()");
     if (!isset($this->objectmelanie))
-      throw new Exceptions\ObjectMelanieUndefinedException();
+      throw new \LibMelanie\Exceptions\ObjectMelanieUndefinedException();
     if (is_string($path)) {
       if ($path == "") {
         $path = self::PATH_ROOT;
@@ -262,11 +262,11 @@ class Attachment extends Melanie2Object {
   protected function setMapIsfolder($isfolder) {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->setMapIsfolder($isfolder)");
     if (!isset($this->objectmelanie))
-      throw new Exceptions\ObjectMelanieUndefinedException();
+      throw new \LibMelanie\Exceptions\ObjectMelanieUndefinedException();
     if ($isfolder)
-      $this->objectmelanie->type = ConfigMelanie::TYPE_FOLDER;
+      $this->objectmelanie->type = Config::get(Config::TYPE_FOLDER);
     else
-      $this->objectmelanie->type = ConfigMelanie::TYPE_FILE;
+      $this->objectmelanie->type = Config::get(Config::TYPE_FILE);
   }
   /**
    * Mapping isfolder field
@@ -274,8 +274,8 @@ class Attachment extends Melanie2Object {
   protected function getMapIsfolder() {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->getMapIsfolder()");
     if (!isset($this->objectmelanie))
-      throw new Exceptions\ObjectMelanieUndefinedException();
-    if ($this->objectmelanie->type === ConfigMelanie::TYPE_FOLDER)
+      throw new \LibMelanie\Exceptions\ObjectMelanieUndefinedException();
+    if ($this->objectmelanie->type === Config::get(Config::TYPE_FOLDER))
       return true;
     else
       return false;
@@ -287,7 +287,7 @@ class Attachment extends Melanie2Object {
   protected function getMapData() {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->getMapData()");
     if (!isset($this->objectmelanie))
-      throw new Exceptions\ObjectMelanieUndefinedException();
+      throw new \LibMelanie\Exceptions\ObjectMelanieUndefinedException();
     if ($this->type == self::TYPE_URL)
       return $this->objectmelanie->data;
     else {
@@ -306,8 +306,8 @@ class Attachment extends Melanie2Object {
   protected function setMapData($data) {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->setMapData()");
     if (!isset($this->objectmelanie))
-      throw new Exceptions\ObjectMelanieUndefinedException();
-    if ($this->type == self::TYPE_URL || $this->objectmelanie->type === ConfigMelanie::TYPE_FOLDER)
+      throw new \LibMelanie\Exceptions\ObjectMelanieUndefinedException();
+    if ($this->type == self::TYPE_URL || $this->objectmelanie->type === Config::get(Config::TYPE_FOLDER))
       return false;
     else {
       $this->objectmelanie->data = bin2hex($data);
@@ -321,11 +321,11 @@ class Attachment extends Melanie2Object {
   protected function getMapUrl() {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->getMapUrl()");
     if (!isset($this->objectmelanie))
-      throw new Exceptions\ObjectMelanieUndefinedException();
+      throw new \LibMelanie\Exceptions\ObjectMelanieUndefinedException();
     if ($this->type == self::TYPE_BINARY) {
-      $url = ConfigMelanie::ATTACHMENT_DOWNLOAD_URL;
+      $url = Config::get(Config::ATTACHMENT_DOWNLOAD_URL);
       $url = str_replace('%f', urlencode($this->name), $url);
-      $url = str_replace('%p', urlencode(substr($this->path, strlen(ConfigMelanie::DEFAULT_ATTACHMENTS_FOLDER) + 1)), $url);
+      $url = str_replace('%p', urlencode(substr($this->path, strlen(Config::get(Config::DEFAULT_ATTACHMENTS_FOLDER)) + 1)), $url);
       return $url;
     } else {
       return $this->objectmelanie->data;
@@ -341,7 +341,7 @@ class Attachment extends Melanie2Object {
   protected function setMapUrl($url) {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->setMapUrl($url)");
     if (!isset($this->objectmelanie))
-      throw new Exceptions\ObjectMelanieUndefinedException();
+      throw new \LibMelanie\Exceptions\ObjectMelanieUndefinedException();
     
     $this->objectmelanie->data = $url;
     $this->type = self::TYPE_URL;
@@ -357,7 +357,7 @@ class Attachment extends Melanie2Object {
   protected function getMapType() {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->getMapType()");
     if (!isset($this->objectmelanie))
-      throw new Exceptions\ObjectMelanieUndefinedException();
+      throw new \LibMelanie\Exceptions\ObjectMelanieUndefinedException();
     return $this->type;
   }
   /**
@@ -370,7 +370,7 @@ class Attachment extends Melanie2Object {
   protected function setMapType($type) {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->setMapType($type)");
     if (!isset($this->objectmelanie))
-      throw new Exceptions\ObjectMelanieUndefinedException();
+      throw new \LibMelanie\Exceptions\ObjectMelanieUndefinedException();
     $this->type = $type;
     return true;
   }
@@ -414,6 +414,6 @@ class Attachment extends Melanie2Object {
       }
     }
     // Retourne le contenttype par défaut
-    return ConfigMelanie::DEFAULT_ATTACHMENT_CONTENTTYPE;
+    return Config::get(Config::DEFAULT_ATTACHMENT_CONTENTTYPE);
   }
 }

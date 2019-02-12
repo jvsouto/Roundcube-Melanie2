@@ -35,7 +35,10 @@
  | Author: Aleksander Machniak <alec@alec.pl>                              |
  +-------------------------------------------------------------------------+
 */
-
+// Configuration du nom de l'application pour l'ORM
+if (! defined('CONFIGURATION_APP_LIBM2')) {
+  define('CONFIGURATION_APP_LIBM2', 'roundcube');
+}
 // include environment
 require_once 'program/include/iniset.php';
 

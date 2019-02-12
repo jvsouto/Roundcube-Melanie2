@@ -19,7 +19,6 @@ namespace LibMelanie\Api\Melanie2;
 
 use LibMelanie\Lib\Melanie2Object;
 use LibMelanie\Objects\ObjectMelanie;
-use LibMelanie\Config\MappingMelanie;
 use LibMelanie\Log\M2Log;
 
 /**
@@ -53,7 +52,7 @@ class TaskslistSync extends Melanie2Object {
   /**
    * Constructeur de l'objet
    * 
-   * @param \LibMelanie\Objects\TaskslistMelanie $calendarmelanie          
+   * @param \LibMelanie\Objects\TaskslistMelanie $taskslistmelanie          
    */
   function __construct($taskslistmelanie = null) {
     // Défini la classe courante
@@ -112,7 +111,7 @@ class TaskslistSync extends Melanie2Object {
       foreach ($this->objectmelanie->getList(null, null, $operators, 'token', false, $limit) as $_taskslistSync) {
         $mapAct = self::$actionMapper[$_taskslistSync->action];
         // MANTIS 0004696: [SyncToken] Ne retourner qu'un seul uid
-        $uid = $_taskslistSync->uid . '.ics';
+        $uid = $this->uidencode($_taskslistSync->uid) . '.ics';
         if (!in_array($uid, $result['added'])
             && !in_array($uid, $result['modified'])
             && !in_array($uid, $result['deleted'])) {
@@ -125,15 +124,25 @@ class TaskslistSync extends Melanie2Object {
       foreach ($task->getList([
           'uid'
       ]) as $_task) {
-        $result['added'][] = $_task->uid . '.ics';
+        $result['added'][] = $this->uidencode($_task->uid) . '.ics';
       }
     }
     
     return $result;
   }
 
-/**
- * ***************************************************
- * DATA MAPPING
- */
+  /**
+   * ***************************************************
+   * PRIVATE
+   */
+  /**
+   * Encodage d'un uid pour les uri (pour les / notamment)
+   * @param string $uid
+   * @return string
+   */
+  private function uidencode($uid) {
+    $search = ['/'];
+    $replace = ['%2F'];
+    return str_replace($search, $replace, $uid);
+  }
 }

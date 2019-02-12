@@ -24,7 +24,6 @@ namespace LibMelanie\Objects;
 use LibMelanie\Lib\MagicObject;
 use LibMelanie\Interfaces\IObjectMelanie;
 use LibMelanie\Sql;
-use LibMelanie\Config\ConfigMelanie;
 use LibMelanie\Config\ConfigSQL;
 use LibMelanie\Config\MappingMelanie;
 use LibMelanie\Exceptions\UndefinedMappingException;
@@ -87,7 +86,7 @@ class ObjectMelanie extends MagicObject implements IObjectMelanie {
 		if (!isset($this->primaryKeys)) return false;
 		if (!isset($this->tableName)) return false;
 		// Test si l'objet existe, pas besoin de load
-		if (is_bool($this->isExist)) {
+		if (is_bool($this->isExist) && $this->isLoaded) {
 		  return $this->isExist;
 		}
 		// Paramètres de la requête
@@ -118,7 +117,10 @@ class ObjectMelanie extends MagicObject implements IObjectMelanie {
 
 		// Récupération
 		$this->isExist = Sql\DBMelanie::ExecuteQueryToObject($query, $params, $this);
-		if ($this->isExist) $this->initializeHasChanged();
+		if ($this->isExist) {
+		  $this->initializeHasChanged();
+		}
+		$this->isLoaded = true;
 		M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class."->load() isExist: ".$this->isExist);
 		return $this->isExist;
 	}

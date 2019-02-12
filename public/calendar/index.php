@@ -91,6 +91,9 @@ if ($calendar->load()
     $event->vcalendar = $vcalendar;
     $vcalendar = $event->vcalendar;
   }
+  
+  // MANTIS 0005005: Rajouter une ligne de log pour un acces a l'url du calendrier
+  utils::log("/calendar $_user $calendar_name");
 
   // Génération du nom de fichier
   $filename = utils::asciiwords(html_entity_decode($calendar->name));
