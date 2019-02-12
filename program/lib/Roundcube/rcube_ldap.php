@@ -171,12 +171,14 @@ class rcube_ldap extends rcube_addressbook
             $this->coltypes['address'] = array(
                'limit'    => max(1, $this->coltypes['locality']['limit'] + $this->coltypes['address']['limit']),
                'subtypes' => array_merge((array)$this->coltypes['address']['subtypes'], (array)$this->coltypes['locality']['subtypes']),
-               'childs' => array(),
+               'childs'   => array(),
+               'attributes' => array(),
                ) + (array)$this->coltypes['address'];
 
             foreach (array('street','locality','zipcode','region','country') as $childcol) {
                 if ($this->coltypes[$childcol]) {
                     $this->coltypes['address']['childs'][$childcol] = array('type' => 'text');
+                    $this->coltypes['address']['attributes'] = array_merge($this->coltypes['address']['attributes'], $this->coltypes[$childcol]['attributes']);
                     unset($this->coltypes[$childcol]);  // remove address child col from global coltypes list
                 }
             }
@@ -297,7 +299,7 @@ class rcube_ldap extends rcube_addressbook
                 }
 
                 // Get the pieces needed for variable replacement.
-                if ($fu = $rcube->get_user_email()) {
+                if ($fu = ($rcube->get_user_email() ?: $this->prop['username'])) {
                     list($u, $d) = explode('@', $fu);
                 }
                 else {
@@ -789,11 +791,6 @@ class rcube_ldap extends rcube_addressbook
             return $this->result;
         }
 
-        // PAMELA - Problème d'autocomplete - MANTIS 3508: L'autocomplétion LDAP n'est pas efficace
-        if (join(',', (array)$fields) == join(',', $list_fields)) {
-          $fields = array('name');
-        }
-
         // advanced per-attribute search
         if (is_array($value)) {
             // use AND operator for advanced searches
@@ -806,12 +803,6 @@ class rcube_ldap extends rcube_addressbook
                 if (!($mode & rcube_addressbook::SEARCH_PREFIX)) {
                     $wp = '*';
                 }
-            }
-
-            // PAMELA - Recherche dans les numéros de téléphone
-            if (count($fields) == 1 && $fields[0] == 'phone' && isset($value[0]) && strlen($value[0]) >= 4) {
-              // MANTIS 3622: Permettre la recherche LDAP par numéro de téléphone
-              $wp = '*'; $ws = '';
             }
 
             foreach ((array)$fields as $idx => $field) {
@@ -879,7 +870,8 @@ class rcube_ldap extends rcube_addressbook
             $filter = 'e:' . $filter;
         }
 
-        $this->set_search_set($prefix . $filter);
+        // set filter string and execute search
+        $this->set_search_set($filter);
 
         if ($select)
             $this->list_records();
@@ -1482,16 +1474,23 @@ class rcube_ldap extends rcube_addressbook
                 if (strpos($templ, '(') !== false) {
                     // replace {attr} placeholders with (escaped!) attribute values to be safely eval'd
                     $code = preg_replace('/\{\w+\}/', '', strtr($templ, array_map('addslashes', $attrvals)));
-                    $fn   = create_function('', "return ($code);");
-                    if (!$fn) {
+                    $res  = false;
+
+                    try {
+                        $res = eval("return ($code);");
+                    }
+                    catch (ParseError $e) {
+                        // ignore
+                    }
+
+                    if ($res === false) {
                         rcube::raise_error(array(
-                            'code' => 505, 'type' => 'php',
-                            'file' => __FILE__, 'line' => __LINE__,
+                            'code' => 505, 'file' => __FILE__, 'line' => __LINE__,
                             'message' => "Expression parse error on: ($code)"), true, false);
                         continue;
                     }
 
-                    $attrs[$lf] = $fn();
+                    $attrs[$lf] = $res;
                 }
                 else {
                     // replace {attr} placeholders with concrete attribute values

@@ -21,7 +21,7 @@
 */
 
 // application constants
-define('RCMAIL_VERSION', '1.2.7');
+define('RCMAIL_VERSION', '1.3.8');
 define('RCMAIL_START', microtime(true));
 
 if (!defined('INSTALL_PATH')) {
@@ -64,9 +64,6 @@ require_once 'Roundcube/bootstrap.php';
 
 // register autoloader for rcmail app classes
 spl_autoload_register('rcmail_autoload');
-
-// backward compatybility (to be removed in version 1.2.0)
-require_once INSTALL_PATH . 'program/include/bc.php';
 
 /**
  * PHP5 autoloader routine for dynamic class loading
