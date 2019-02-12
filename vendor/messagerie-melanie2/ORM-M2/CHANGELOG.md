@@ -1,3 +1,163 @@
+ORM M2 - 0.5.0.9
+------
+- 0005209: Problème de gestion des enregistrements entre le mode en attente et le s'inviter
+- 0005221: [Config] Créer une configuration par défaut
+- 0005220: [Config] nouveau champ SELF_INVITE
+- 0005219: Ajouter une information dans le participant qui s'est inviter
+- 0005218: [En attente] Si le participant s'est invité ne pas passer son événement en annulé
+
+ORM M2 - 0.5.0.8
+------
+- 0005142: [Recurrence] Si le format json n'est pas présent forcer l'ancien format
+- 0005143: [ICS] Valider la recurrence avec de la passer au VObject
+
+ORM M2 - 0.5.0.7
+------
+- 0005125: Bloquer les répétitions "récursives"
+- 0005111: [ICS] Ne pas écraser la réponse d'un participant confirmée par un "need action"
+- 0005126: Ne pas supprimer l'attribut X_MOZ_SEND_INVITATIONS
+- 0005127: Problème de sync des contacts quand le token est null
+
+ORM M2 - 0.5.0.6
+------
+- 0005102: [En attente] La suppression d'un événement ne supprime pas chez les participants
+
+ORM M2 - 0.5.0.5
+------
+- 0005101: [En attente] La recherche des participants supprimés est sensible au champ ORM.enattente dans l'annuaire
+
+ORM M2 - 0.5.0.4
+------
+- 0005098: Mise en place du sync token pour les carnets d'adresses
+
+ORM M2 - 0.5.0.3
+------
+- 0005096: Le champ X-M2-ORG-MAIL n'est pas alimenté pour une modification d'événement
+- 0005097: [En attente] Vérifier que le participant n'est pas aussi l'organisateur
+
+ORM M2 - 0.5.0.2
+------
+- 0005089: Erreur de génération d'un ICS
+- 0005086: Impossible de vider la liste des participants
+- 0005088: Prévoir une requête optimisé de liste des événéments pour SabreDAV
+- 0005095: Mauvaise gestion du timezone pour les exceptions
+
+ORM M2 - 0.5.0.1
+------
+- 0005080: HOTFIX: Problème de suppression des occurrences
+- 0005074: [ICS] Si l'événement n'a pas de date générer une date standard
+
+ORM M2 - 0.5
+------
+- 0005035: Créer un événement en attente lorsque l'on est invité
+- 0005038: Lorsque le participant accepte, si l'événement est en provisoire dans son agenda le passer en confirmé
+- 0005037: [MagicObject] Rendre le champ haschanged accessible publiquement
+- 0005046: [MagicObject] permettre la récupération des données depuis data
+- 0005040: La création d'un événement sans participant puis ajout de participants ne fonctionne pas correctement
+- 0005049: La récupération du calendrier de l'organisateur pour les occurrences ne fonctionne pas
+- 0005055: [En attente] Mieux gérer les participants qui sont dans une occurrence mais pas dans la récurrence maitre
+- 0005066: Marquage LDAP du mode "En attente"
+
+ORM M2 - 0.4.0.17
+------
+- 0005080: HOTFIX: Problème de suppression des occurrences
+- 0005074: [ICS] Si l'événement n'a pas de date générer une date standard
+
+ORM M2 - 0.4.0.16
+------
+- 0005064: [ICS] si l'organisateur existe, ne pas le modifier depuis l'ICS
+- 0005065: [Recurrence] Gérer les jours en DAILY
+
+ORM M2 - 0.4.0.15
+------
+- 0005047: [SyncToken] le nettoyage de l'uid des occurrences n'est pas
+- 0005040: La création d'un événement sans participant puis ajout de participants ne fonctionne pas correctement
+- 0005049: La récupération du calendrier de l'organisateur pour les occurrences ne fonctionne pas
+
+ORM M2 - 0.4.0.14
+------
+- FIX 0005028: L'enregistrement de la réponse d'un participant ne se base pas sur la bonne valeur
+- Problème dans le mapping des attributs LDAP
+
+ORM M2 - 0.4.0.13
+------
+- FIX 0005028: L'enregistrement de la réponse d'un participant ne se base pas sur la bonne valeur
+
+ORM M2 - 0.4.0.12
+------
+- 0005028: L'enregistrement de la réponse d'un participant ne se base pas sur la bonne valeur
+- 0005033: [ICS] Gérer les objets de partage pour les événements privés
+- 0005029: Le nom de l'organisateur n'est pas conservé après acceptation de l'invitation
+
+ORM M2 - 0.4.0.11
+------
+- 0005022: Gestion du champ owner email dans la classe organizer
+- 0005023: [ICS] ICS ajout du champ X-M2-ORG-MAIL dans ORGANIZER
+
+ORM M2 - 0.4.0.10
+------
+- 0004986: [ICS] un non participant doit être en accepted
+
+ORM M2 - 0.4.0.9
+------
+- 0004973: Modifier le CN de l'organisateur dans le cas assistante/directeur
+- 0004972: Une invitation créé depuis une boite partagée n'est pas reconnu comme interne
+- 0004974: [LDAP] Nouvelles méthodes getMapValue et getMapValues
+
+ORM M2 - 0.4.0.8
+------
+- 0004945: Positionner le exist à true sur un Faked Master
+- 0004970: [ICS] Le owner n'est pas correctement récupéré pour les exceptions
+- 0004971: La définition d'un organisateur pour une exception ne fonctionne pas bien
+
+ORM M2 - 0.4.0.7
+------
+- 0004944: Problème dans la gestion du enddate
+
+ORM M2 - 0.4.0.6
+------
+- Mise en place d'un timeout LDAP
+- Gestion du last request dans le driver LDAP
+- Passage du event_id en 64 caractères
+- 0004929: [ICS] Si l'organisateur est vide, ne pas considérer que c'est une réunion
+- Correction PHP Notice:  Undefined index: uid in ORM-M2/src/Ldap/LDAPMelanie.php on line 94
+- 0004911: Boucle de fonctionnement lorsque qu'on arrive pas à déterminer l'organisateur proprement
+- Si pas de CREATED dans l'ICS en calculer un
+
+ORM M2 - 0.4.0.5
+------
+- 0003624: Ajouter des attributs LDAP dans l'objet Melanie2\User
+- Ajout des URL CalDAV et CardDAV dans les conteneurs
+- Mise à jour du docs
+
+ORM M2 - 0.4.0.4
+------
+- Ajout du getList dans la classe UserPrefs
+- Ajout des docs générés par ApiGen
+
+ORM M2 - 0.4.0.3
+------
+- 0004869: Support du ROLE CHAIR pour les participants
+- 0004870: Gestion du SENT BY dans l'ICS
+- 0004871: [Recurrence] Le décodage json du UNTIL ne fourni pas de DateTime
+- 0004873: Convertir la recurrence au bon timezone avant de l'enregistrer
+
+ORM M2 - 0.4.0.2
+------
+- Problème dans la récupération du type de récurrence
+- Problème quand le UNTIL est un objet
+
+ORM M2 - 0.4.0.1
+------
+- 0004777: [Sync] encoder les uid retournés 
+- 0004789: [Nouveau schéma] Gérer les éléments de récurrence qui retourne un tableau
+- 0004814: [Nouveau schéma] Gérer les éléments de récurrence indépendemment
+- 0004817: Les data d'une pièce jointe chargée via getList() ne sont pas récupéré par le load()
+
+ORM M2 - 0.4
+------
+- 0004004: Evolution du schéma de base de données
+
 ORM M2 - 0.3.0.24
 ------
 - 0004740: Considérer l'événement supprimé si start = 1970-01-01

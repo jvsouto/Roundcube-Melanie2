@@ -1689,11 +1689,18 @@ ul.proplist li {
 
 
 /*** Login form ***/
+/** PAMELA **/
+#login-logo {
+  position: relative;
+  width: 580px;
+  margin: 2ex auto 2ex auto;
+}
 
 #login-form {
 	position: relative;
 	width: 580px;
-	margin: 20ex auto 2ex auto;
+	/** PAMELA **/
+	margin: 2ex auto 2ex auto;
 }
 
 #login-form .box-inner {

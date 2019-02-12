@@ -314,6 +314,10 @@ class rcube_imap extends rcube_storage
      */
     public function set_folder($folder)
     {
+    	// PAMELA - Changer le nom du folder par un plugin / utilise pour les boites partagees
+    	$data = $this->plugins->exec_hook('m2_set_folder_name',
+    			array('folder' => $folder));
+    	if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
         $this->folder = $folder;
     }
 
@@ -625,6 +629,11 @@ class rcube_imap extends rcube_storage
         if (!strlen($folder)) {
             $folder = $this->folder;
         }
+        
+        // PAMELA - Changer le nom du folder par un plugin / utilise pour les boites partagees
+        $data = $this->plugins->exec_hook('m2_set_folder_name',
+            array('folder' => $folder));
+        if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         return $this->countmessages($folder, $mode, $force, $status);
     }
@@ -760,6 +769,10 @@ class rcube_imap extends rcube_storage
         if (!strlen($folder)) {
             $folder = $this->folder;
         }
+        // PAMELA - Changer le nom du folder par un plugin / utilise pour les boites partagees
+        $data = $this->plugins->exec_hook('m2_set_folder_name',
+                array('folder' => $folder));
+        if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         if (!$this->check_connection()) {
             return array();
@@ -796,6 +809,10 @@ class rcube_imap extends rcube_storage
         if (!strlen($folder)) {
             $folder = $this->folder;
         }
+        // PAMELA - Changer le nom du folder par un plugin / utilise pour les boites partagees
+        $data = $this->plugins->exec_hook('m2_set_folder_name',
+        		array('folder' => $folder));
+        if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         return $this->_list_messages($folder, $page, $sort_field, $sort_order, $slice);
     }
@@ -1271,6 +1288,10 @@ class rcube_imap extends rcube_storage
         if (!strlen($folder)) {
             $folder = $this->folder;
         }
+        // PAMELA - Changer le nom du folder par un plugin / utilise pour les boites partagees
+        $data = $this->plugins->exec_hook('m2_set_folder_name',
+        		array('folder' => $folder));
+        if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
         $old = $this->get_folder_stats($folder);
 
         // refresh message count -> will update
@@ -1354,6 +1375,10 @@ class rcube_imap extends rcube_storage
         if (!strlen($folder)) {
             $folder = $this->folder;
         }
+        // PAMELA - Changer le nom du folder par un plugin / utilise pour les boites partagees
+        $data = $this->plugins->exec_hook('m2_set_folder_name',
+        		array('folder' => $folder));
+        if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         // we have a saved search result, get index from there
         if ($this->search_string) {
@@ -1488,6 +1513,10 @@ class rcube_imap extends rcube_storage
         if (!strlen($folder)) {
             $folder = $this->folder;
         }
+        // PAMELA - Changer le nom du folder par un plugin / utilise pour les boites partagees
+        $data = $this->plugins->exec_hook('m2_set_folder_name',
+        		array('folder' => $folder));
+        if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         // we have a saved search result, get index from there
         if ($this->search_string && $this->search_threads && $folder == $this->folder) {
@@ -1553,6 +1582,10 @@ class rcube_imap extends rcube_storage
         if ((is_array($folder) && empty($folder)) || (!is_array($folder) && !strlen($folder))) {
             $folder = $this->folder;
         }
+        // PAMELA - Changer le nom du folder par un plugin / utilise pour les boites partagees
+        $data = $this->plugins->exec_hook('m2_set_folder_name',
+            array('folder' => $folder));
+        if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         $plugin = $this->plugins->exec_hook('imap_search_before', array(
             'folder'     => $folder,
@@ -1636,6 +1669,11 @@ class rcube_imap extends rcube_storage
             if (!strlen($folder)) {
                 $folder = $this->folder;
             }
+            // PAMELA - Changer le nom du folder par un plugin / utilise pour les boites partagees
+            $data = $this->plugins->exec_hook('m2_set_folder_name',
+                array('folder' => $folder));
+            if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
+            
             $index = $this->conn->search($folder, $str, true);
         }
 
@@ -1808,6 +1846,10 @@ class rcube_imap extends rcube_storage
         if (!strlen($folder)) {
             $folder = $this->folder;
         }
+        // PAMELA - Changer le nom du folder par un plugin / utilise pour les boites partagees
+        $data = $this->plugins->exec_hook('m2_set_folder_name',
+        		array('folder' => $folder));
+        if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         // get cached headers
         if (!$force && $uid && ($mcache = $this->get_mcache_engine())) {
@@ -1841,6 +1883,10 @@ class rcube_imap extends rcube_storage
         if (!strlen($folder)) {
             $folder = $this->folder;
         }
+        // PAMELA - Changer le nom du folder par un plugin / utilise pour les boites partagees
+        $data = $this->plugins->exec_hook('m2_set_folder_name',
+        		array('folder' => $folder));
+        if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
 
         // decode combined UID-folder identifier
         if (preg_match('/^\d+-.+/', $uid)) {
@@ -2820,6 +2866,11 @@ class rcube_imap extends rcube_storage
             $cache_key .= ':'.(is_string($filter) ? $filter : serialize($filter));
         }
         $cache_key .= ':'.$rights;
+        
+        // PAMELA -- Ajouter le compte utilisateur
+        $account = rcube::get_instance()->plugins->exec_hook('m2_get_account', array());
+        if (isset($account) && isset($account['account'])) $cache_key .= ':'.$account['account'];
+        
         $cache_key = 'mailboxes.'.md5($cache_key);
 
         // get cached folder list
@@ -3139,6 +3190,11 @@ class rcube_imap extends rcube_storage
      */
     public function get_quota($folder = null)
     {
+      	// PAMELA - Changer le nom du folder par un plugin / utilise pour les boites partagees
+      	$data = $this->plugins->exec_hook('m2_set_folder_name',
+          array('folder' => $folder));
+      	if (isset($data) && isset($data['folder'])) $folder = $data['folder'];
+      
         if ($this->get_capability('QUOTA') && $this->check_connection()) {
             return $this->conn->getQuota($folder);
         }
