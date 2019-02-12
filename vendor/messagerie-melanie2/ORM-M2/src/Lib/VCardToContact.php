@@ -21,9 +21,11 @@
  */
 namespace LibMelanie\Lib;
 
+use LibMelanie\Config\ConfigMelanie;
 use LibMelanie\Api\Melanie2\User;
 use LibMelanie\Api\Melanie2\Contact;
 use LibMelanie\Api\Melanie2\Addressbook;
+use LibMelanie\Log\M2Log;
 
 // Utilisation de la librairie Sabre VObject pour la conversion ICS
 @include_once 'vendor/autoload.php';

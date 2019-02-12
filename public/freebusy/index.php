@@ -146,9 +146,6 @@ else {
   }
 }
 
-// MANTIS 0005005: Rajouter une ligne de log pour un acces a l'url du calendrier
-utils::log("/freebusy $_user $calendar_name");
-
 // Header
 header('Content-type: text/calendar; charset=utf-8');
 header('Content-Disposition: attachment; filename='.$filename);

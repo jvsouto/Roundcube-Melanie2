@@ -21,6 +21,7 @@
  */
 namespace LibMelanie\Lib;
 
+use LibMelanie\Config\ConfigMelanie;
 use LibMelanie\Api\Melanie2\Attachment;
 use LibMelanie\Api\Melanie2\Recurrence;
 use LibMelanie\Api\Melanie2\User;
@@ -28,7 +29,6 @@ use LibMelanie\Api\Melanie2\Event;
 use LibMelanie\Api\Melanie2\Attendee;
 use LibMelanie\Api\Melanie2\Calendar;
 use LibMelanie\Log\M2Log;
-use LibMelanie\Config\Config;
 
 // Utilisation de la librairie Sabre VObject pour la conversion ICS
 @include_once 'vendor/autoload.php';
@@ -48,7 +48,7 @@ class EventToICS {
 	 * Identifiant de l'outil utilisant l'ICS (pour la génération)
 	 * @var string
 	 */
-	const PRODID = '-//ORM LibMelanie2 PHP/PNE Messagerie/MTES';
+	const PRODID = '-//ORM LibMelanie2 PHP/PNE Messagerie/MEDDE';
 	/**
 	 * Version ICalendar utilisé pour la génération de l'ICS
 	 * @var string
@@ -111,6 +111,16 @@ class EventToICS {
 	  // Configuration pour l'utilisation des URLs pour les pièces jointes
 	  // Se fait en fonction des informations fournies par le client
 	  self::$USE_ATTACH_URL = !isset($_SERVER["HTTP_X_MOZ_ATTACHMENTS"]) || $_SERVER["HTTP_X_MOZ_ATTACHMENTS"] != 1;
+	  // Gestion du timezone
+	  if (isset($user)) {
+	    $timezone = $user->getTimezone();
+	  }
+	  elseif (isset($calendar)) {
+	    $timezone = $calendar->getTimezone();
+	  }
+	  if (empty($timezone)) {
+	    $timezone = ConfigMelanie::CALENDAR_DEFAULT_TIMEZONE;
+	  }
 	  // UID
 	  $vevent->UID = $event->uid;
 	  if (!$event->deleted) {
@@ -118,29 +128,23 @@ class EventToICS {
 	    // Type récurrence
 	    if (isset($event->recurrence->type)
 	        && $event->recurrence->type !== Recurrence::RECURTYPE_NORECUR) {
+	      $timeStart = new \DateTime($event->start);
 	      $rrule = $event->recurrence->rrule;
 	      $params = [];
-	      if (isset($rrule) 
-	          && is_array($rrule)
-	          && count($rrule) > 0) {
-          foreach ($rrule as $key => $value) {
-            if (!is_string($value)) {
-              if ($value instanceof \DateTime) {
-                $value = $value->format('Ymd').'T'.$value->format('His').'Z';
-              }
-            }
-            if ($key == ICS::INTERVAL && $value == 1) {
-              // On n'affiche pas l'interval 1 dans l'ICS
-              continue;
-            }
-            else if (is_array($value)) {
-              $value = implode(',', $value);
-            }
-            $params[] = "$key=$value";
-          }
-          // Construction de la récurrence
-          $vevent->add(ICS::RRULE, implode(';',$params));
-        }
+	      foreach ($rrule as $key => $value) {
+	        if (!is_string($value)) {
+	          if ($value instanceof \DateTime) {
+	            $value = $value->format('Ymd').'T'.$value->format('His').'Z';
+	          }
+	        }
+	        if ($key == ICS::INTERVAL && $value == 1) {
+	          // On n'affiche pas l'interval 1 dans l'ICS
+	          continue;
+	        }
+	        $params[] = "$key=$value";
+	      }
+	      // Construction de la récurrence
+	      $vevent->add(ICS::RRULE, implode(';',$params));
 	    }
 	  }
 	  // Exceptions
@@ -158,16 +162,16 @@ class EventToICS {
 	          $exRecId = date('Y-m-d', strtotime($exception->recurrenceId)) . ' ' . date('H:i:s', strtotime($event->start));
 	        }	        
 	      }
-	      $exdatetime = new \DateTime($exRecId, new \DateTimeZone($exception->timezone));
+	      $exdatetime = new \DateTime($exRecId, new \DateTimeZone($timezone));
 	      
 	      if ($event->deleted) {
 	        if ($first) {
 	          $first = false;
-	          $starttime = new \DateTime($exception->start, new \DateTimeZone($exception->timezone));
-	          $endtime = new \DateTime($exception->end, new \DateTimeZone($exception->timezone));
+	          $starttime = new \DateTime($exception->start, new \DateTimeZone($timezone));
+	          $endtime = new \DateTime($exception->end, new \DateTimeZone($timezone));
 	          $rdate_d = clone $exdatetime;
 	          $rdate_d->setTimezone(new \DateTimeZone('UTC'));	          	         
-	          if ($exception->all_day) {
+	          if ($starttime->format('His') == '000000' && $endtime->format('His') == '000000') {
 	            $date = $rdate_d->format('Ymd');
 	            $vevent->add(ICS::RDATE, $date, [ICS::VALUE => ICS::VALUE_DATE]);
 	            $vevent->add(ICS::DTSTART, $exdatetime->format('Ymd'), [ICS::VALUE => ICS::VALUE_DATE]);
@@ -176,7 +180,7 @@ class EventToICS {
 	            $vevent->add(ICS::RDATE, $date, [ICS::VALUE => ICS::VALUE_DATE_TIME]);
 	            $vevent->DTSTART = clone $exdatetime;
 	          }
-	          $dateTime = new \DateTime('@'.$exception->modified, new \DateTimeZone($exception->timezone));
+	          $dateTime = new \DateTime('@'.$exception->modified, new \DateTimeZone($timezone));
 	          $dateTime->setTimezone(new \DateTimeZone('UTC'));
 	          $date = $dateTime->format('Ymd') . 'T' . $dateTime->format('His') . 'Z';
 	          // Attributs sur l'alarme
@@ -228,13 +232,15 @@ class EventToICS {
 	        $vexception = $vcalendar->add('VEVENT');
 	        // UID
 	        $vexception->UID = $exception->uid;
-	        if (!$isfreebusy || !$event->deleted) {
-	          if ($vevent->DTSTART[ICS::VALUE] == ICS::VALUE_DATE) {
-	            $vexception->add(ICS::RECURRENCE_ID, $date, [ICS::VALUE => ICS::VALUE_DATE]);
+	        if ($vevent->DTSTART[ICS::VALUE] == ICS::VALUE_DATE) {
+	          $vexception->add(ICS::RECURRENCE_ID, $date, [ICS::VALUE => ICS::VALUE_DATE]);
+	        } else {
+	          if (isset($timezone)) {
+	            $vexception->add(ICS::RECURRENCE_ID, $date, [ICS::VALUE => ICS::VALUE_DATE_TIME, ICS::TZID => $timezone]);
 	          } else {
-	            $vexception->add(ICS::RECURRENCE_ID, $date, [ICS::VALUE => ICS::VALUE_DATE_TIME, ICS::TZID => $exception->timezone]);
+	            $vexception->add(ICS::RECURRENCE_ID, $date, [ICS::VALUE => ICS::VALUE_DATE_TIME]);
 	          }
-	        }	        
+	        }
 	        $vexception = self::getVeventFromEvent($vexception, $exception, $calendar, $user, $useattachments, $isfreebusy);
 	      }
 	    }
@@ -244,7 +250,11 @@ class EventToICS {
 	        if ($vevent->DTSTART[ICS::VALUE] == ICS::VALUE_DATE) {
 	          $vevent->add(ICS::EXDATE, $date, [ICS::VALUE => ICS::VALUE_DATE]);
 	        } else {
-            $vevent->add(ICS::EXDATE, $date, [ICS::VALUE => ICS::VALUE_DATE_TIME, ICS::TZID => $event->timezone]);
+	          if (isset($timezone)) {
+	            $vevent->add(ICS::EXDATE, $date, [ICS::VALUE => ICS::VALUE_DATE_TIME, ICS::TZID => $timezone]);
+	          } else {
+	            $vevent->add(ICS::EXDATE, $date, [ICS::VALUE => ICS::VALUE_DATE_TIME]);
+	          }
 	        }
 	      }
 	    }
@@ -265,6 +275,17 @@ class EventToICS {
 	 */
 	private static function getVeventFromEvent(VObject\Component $vevent, Event $event, Calendar $calendar = null, User $user = null, $useattachments = true, $isfreebusy = false) {
 	  M2Log::Log(M2Log::LEVEL_DEBUG, "EventToICS->getVeventFromEvent()");
+	  // Timezone
+		if (isset($user)) {
+		  $timezone = $user->getTimezone();
+		}
+	  elseif (isset($calendar)) {
+			$timezone = $calendar->getTimezone();
+		}
+		if (empty($timezone)) {
+		  $timezone = ConfigMelanie::CALENDAR_DEFAULT_TIMEZONE;
+		}
+		M2Log::Log(M2Log::LEVEL_DEBUG, "EventToICS->getVeventFromEvent() timezone : " . $timezone);
 		// Class
 		if (isset($event->class)) {
 			switch ($event->class) {
@@ -301,7 +322,7 @@ class EventToICS {
 
 		// DTSTAMP
 		if (isset($event->modified)) {
-		  $dateTime = new \DateTime('@'.$event->modified, new \DateTimeZone($event->timezone));
+ 		  $dateTime = new \DateTime('@'.$event->modified, new \DateTimeZone($timezone));
 		  $dateTime->setTimezone(new \DateTimeZone('UTC'));
 		  $date = $dateTime->format('Ymd\THis\Z');
 		  $vevent->add(ICS::DTSTAMP, $date);
@@ -315,10 +336,10 @@ class EventToICS {
 
 		// DateTime
 		if (isset($event->start) && isset($event->end)) {
-			$dateTimeStart = new \DateTime($event->start, new \DateTimeZone($event->timezone));
-			$dateTimeEnd = new \DateTime($event->end, new \DateTimeZone($event->timezone));
+			$dateTimeStart = new \DateTime($event->start, new \DateTimeZone($timezone));
+			$dateTimeEnd = new \DateTime($event->end, new \DateTimeZone($timezone));
 
-			if ($event->all_day) {
+			if ($dateTimeEnd->format('H:i:s') == $dateTimeStart->format('H:i:s') && $dateTimeStart->format('H:i:s') == "00:00:00") {
 				// All day event
 				$vevent->add(ICS::DTSTART, $dateTimeStart->format('Ymd'), [ICS::VALUE => ICS::VALUE_DATE]);
 				$vevent->add(ICS::DTEND, $dateTimeEnd->format('Ymd'), [ICS::VALUE => ICS::VALUE_DATE]);
@@ -326,11 +347,6 @@ class EventToICS {
 				$vevent->DTSTART = $dateTimeStart;
 				$vevent->DTEND = $dateTimeEnd;
 			}
-		}
-		// MANTIS 0005074: [ICS] Si l'événement n'a pas de date générer une date standard
-		else {
-		  $vevent->DTSTART = new \DateTime('1970-01-02 09:00:00');
-		  $vevent->DTEND = new \DateTime('1970-01-02 10:00:00');
 		}
 
 		// Problème de user uid vide
@@ -340,9 +356,8 @@ class EventToICS {
 				|| $event->class == Event::CLASS_CONFIDENTIAL)
 				&& (($event->owner != $user_uid
 				&& isset($calendar)
-				&& $calendar->owner != $user_uid
-		    && strpos($event->owner, $user_uid.'.-.') !== 0
-		    && !$calendar->asRight(Config::get(Config::PRIV))) || !isset($user_uid))) {
+				&& $calendar->owner !=  $user_uid
+		    && !$calendar->asRight(\LibMelanie\Config\ConfigMelanie::PRIV)) || !isset($user_uid))) {
 			$vevent->SUMMARY = 'Événement privé';
     } else if ($isfreebusy) {
       $vevent->SUMMARY = '[' . self::convertStatusToFR($event->status) . '] Événement';
@@ -382,48 +397,41 @@ class EventToICS {
 				$x_moz_snooze_time = $event->getAttribute(ICS::X_MOZ_SNOOZE_TIME);
 				if (isset($x_moz_snooze_time)) $vevent->{ICS::X_MOZ_SNOOZE_TIME} = $x_moz_snooze_time;
 			}
-			// Récupérer l'organisateur
-			$organizer_email = trim($event->organizer->email);
 			// Traitement participants
 			$organizer_attendees = $event->attendees;
 			if (!is_null($organizer_attendees)
 					&& is_array($organizer_attendees)
-					&& count($organizer_attendees) > 0
-			    && isset($organizer_email)
-			    && !empty($organizer_email)) {
+					&& count($organizer_attendees) > 0) {
 			  // Add organizer
-		    $params = [];
-		    $org_role = $event->organizer->role;
-		    if (isset($org_role)) {
-		      $params[ICS::ROLE] = $org_role;
-		    }
-		    $org_partstat = $event->organizer->partstat;
-		    if (isset($org_partstat)) {
-		      $params[ICS::PARTSTAT] = $org_partstat;
-		    }
-		    $org_rsvp = $event->organizer->rsvp;
-		    if (isset($org_rsvp)) {
-		      $params[ICS::RSVP] = $org_rsvp;
-		    }
-		    $org_name = $event->organizer->name;
-		    if (isset($org_name)) {
-		      $params[ICS::CN] = $org_name;
-		    }
-		    $org_sent_by = $event->organizer->sent_by;
-		    if (isset($org_sent_by)) {
-		      $params[ICS::SENT_BY] = $org_sent_by;
-		    }
-		    $org_owner_email = $event->organizer->owner_email;
-		    if (isset($org_owner_email)) {
-		      $params[ICS::X_M2_ORG_MAIL] = 'mailto:'.$org_owner_email;
+		    $params = [
+		        ICS::ROLE => ICS::ROLE_CHAIR,
+		        ICS::PARTSTAT => ICS::PARTSTAT_ACCEPTED,
+		        ICS::RSVP => 'TRUE',
+		    ];
+		    if (!empty($event->organizer->name)) {
+		      $params[ICS::CN] = $event->organizer->name;
 		    }
 		    $vevent->add(ICS::ORGANIZER,
-		        'mailto:'.$organizer_email,
+		        'mailto:'.$event->organizer->email,
 		        $params
         );
 				foreach ($organizer_attendees as $attendee) {
-				  // RSVP
-				  $rsvp = 'TRUE';
+					// Role
+					switch ($attendee->role) {
+						case Attendee::ROLE_CHAIR:
+							$role = ICS::ROLE_CHAIR;
+							break;
+						default:
+						case Attendee::ROLE_REQ_PARTICIPANT:
+							$role = ICS::ROLE_REQ_PARTICIPANT;
+							break;
+						case Attendee::ROLE_OPT_PARTICIPANT:
+							$role = ICS::ROLE_OPT_PARTICIPANT;
+							break;
+						case Attendee::ROLE_NON_PARTICIPANT:
+							$role = ICS::ROLE_NON_PARTICIPANT;
+							break;
+					}
 					// Parstat
 					switch ($attendee->response) {
 						case Attendee::RESPONSE_ACCEPTED:
@@ -443,28 +451,10 @@ class EventToICS {
 							$partstat = ICS::PARTSTAT_TENTATIVE;
 							break;
 					}
-					// Role
-					switch ($attendee->role) {
-					  case Attendee::ROLE_CHAIR:
-					    $role = ICS::ROLE_CHAIR;
-					    break;
-					  default:
-					  case Attendee::ROLE_REQ_PARTICIPANT:
-					    $role = ICS::ROLE_REQ_PARTICIPANT;
-					    break;
-					  case Attendee::ROLE_OPT_PARTICIPANT:
-					    $role = ICS::ROLE_OPT_PARTICIPANT;
-					    break;
-					  case Attendee::ROLE_NON_PARTICIPANT:
-					    $role = ICS::ROLE_NON_PARTICIPANT;
-					    $partstat = ICS::PARTSTAT_ACCEPTED;
-					    $rsvp = 'FALSE';
-					    break;
-					}
 					$params = [
     						ICS::PARTSTAT => $partstat,
     						ICS::ROLE => $role,
-					      ICS::RSVP => $rsvp,
+					      ICS::RSVP => 'TRUE',
 					    ];
 					$attendee_name = $attendee->name;
 					if (!empty($attendee_name)) {
@@ -503,7 +493,7 @@ class EventToICS {
 			$moz_generation = $event->getAttribute(ICS::X_MOZ_GENERATION);
 			if (isset($moz_generation)) $vevent->add(ICS::X_MOZ_GENERATION, $moz_generation);
 			// Transp
-			$transp = $event->transparency;
+			$transp = $event->getAttribute(ICS::TRANSP);
 			if (isset($transp)) $vevent->add(ICS::TRANSP, $transp);
 			// Gestion des pièces jointes
 			if ($useattachments) {
@@ -549,7 +539,7 @@ class EventToICS {
 	 * @param string $timezone
 	 */
 	private static function generationTimezone(VObject\Component $vcalendar, $timezone) {
-		if (!Config::get(Config::ICS_ADD_TIMEZONE)) return;
+		if (!ConfigMelanie::ICS_ADD_TIMEZONE) return;
 
 		if ($timezone === 'Europe/Paris') {
 			$vtimezone = $vcalendar->add('VTIMEZONE');

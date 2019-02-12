@@ -52,13 +52,11 @@ class rcube_csv2vcard
         'company'               => 'organization',
         //'company_main_phone'    => '',
         'department'            => 'department',
-        // PAMELA - MANTIS 0005045: L'import de plusieurs email en CSV ne fonctionne pas
-        'email_2_address'       => 'email:home',
+        'email_2_address'       => 'email:other',
         //'email_2_type'          => '',
         'email_3_address'       => 'email:other',
         //'email_3_type'          => '',
-        // PAMELA - MANTIS 0005045: L'import de plusieurs email en CSV ne fonctionne pas
-        'email_address'         => 'email:work',
+        'email_address'         => 'email:pref',
         //'email_type'            => '',
         'first_name'            => 'firstname',
         'gender'                => 'gender',

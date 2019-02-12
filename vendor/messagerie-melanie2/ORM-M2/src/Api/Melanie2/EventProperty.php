@@ -20,6 +20,9 @@ namespace LibMelanie\Api\Melanie2;
 use LibMelanie\Objects\EventMelanie;
 use LibMelanie\Lib\Melanie2Object;
 use LibMelanie\Objects\ObjectMelanie;
+use LibMelanie\Config\ConfigMelanie;
+use LibMelanie\Config\MappingMelanie;
+use LibMelanie\Exceptions;
 use LibMelanie\Log\M2Log;
 
 /**

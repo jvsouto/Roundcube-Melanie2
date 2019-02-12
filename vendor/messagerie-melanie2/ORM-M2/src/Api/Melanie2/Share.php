@@ -19,8 +19,10 @@ namespace LibMelanie\Api\Melanie2;
 
 use LibMelanie\Lib\Melanie2Object;
 use LibMelanie\Objects\ObjectMelanie;
+use LibMelanie\Config\ConfigMelanie;
+use LibMelanie\Config\MappingMelanie;
+use LibMelanie\Exceptions;
 use LibMelanie\Log\M2Log;
-use LibMelanie\Config\DefaultConfig;
 
 /**
  * Classe pour la gestion des droits
@@ -163,7 +165,7 @@ class Share extends Melanie2Object {
    */
   function asRight($acl) {
     M2Log::Log(M2Log::LEVEL_DEBUG, $this->get_class . "->asRight($acl)");
-    return (DefaultConfig::$PERMS[$acl] & intval($this->objectmelanie->acl)) === DefaultConfig::$PERMS[$acl];
+    return (ConfigMelanie::$PERMS[$acl] & intval($this->objectmelanie->acl)) === ConfigMelanie::$PERMS[$acl];
   }
 
 /**

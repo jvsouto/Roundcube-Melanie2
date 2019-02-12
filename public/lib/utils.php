@@ -496,42 +496,4 @@ class utils
       $allowed = 'a-z0-9\_\-' . (!$css_id ? '\.' : '');
       return preg_replace("/[^$allowed]/i", $replace_with, $str);
     }
-    
-    /**
-     * Appel la methode de log de roundcube
-     * Log dans un fichier melanie2
-     * 
-     * @param string $level voir melanie2_log::
-     * @param string $message
-     */
-    public static function log($message)
-    {
-      $ip = self::_get_address_ip();
-      $procid = getmypid();
-      $mineqprovenance = $_SERVER["HTTP_X_MINEQPROVENANCE"];
-      $courrielleur = isset($_GET['_courrielleur']) ? " {Courrielleur}" : " {Web}";
-      $date = date('d-M-Y H:i:s O');
-      $message = "[$date]: <calendar> [INFO] $ip ($mineqprovenance) PROC[$procid]$courrielleur - $message\r\n";
-      error_log($message, 3, '/var/log/roundcube/roundcube_melanie2.log');
-    }
-    
-    /******** PRIVATE **********/
-    /**
-     * Retourne l'adresse ip
-     * @return string
-     * @private
-     */
-    private static function _get_address_ip() {
-      if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-        $ip = $_SERVER['HTTP_CLIENT_IP'];
-        $ip = "[".$_SERVER['REMOTE_ADDR']."]/[$ip]";
-      } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        $ip = "[".$_SERVER['REMOTE_ADDR']."]/[$ip]";
-      } else {
-        $ip = $_SERVER['REMOTE_ADDR'];
-        $ip = "[$ip]/[".$_SERVER['REMOTE_ADDR']."]";
-      }
-      return $ip;
-    }
 }
